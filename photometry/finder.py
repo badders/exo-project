@@ -13,6 +13,7 @@ from scipy.ndimage import label, find_objects
 from scipy import optimize
 import math
 
+DEBUG = False
 
 # Default Parameters
 SNR = 5
@@ -29,9 +30,9 @@ def fitgaussian(data):
     """Returns (height, x, y, width_x, width_y)
     the gaussian parameters of a 2D distribution found by a fit"""
     def errorfunction(p):
-        return np.ravel(gaussian(*p)(*np.indices(data.shape)) - data)
+        return np.ravel(gaussian(*p)(*np.indices(data.shape)) - data) 
     params = data.max(), data.shape[0] / 2, data.shape[1] / 2, 5, 5, data.mean()
-    p, success = optimize.leastsq(errorfunction, params)
+    p, success = optimize.leastsq(errorfunction, params, maxfev=3000)
     return p
 
 
@@ -75,27 +76,38 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
     # 3. Now refine these maxima to star central points
     for i in range(stars.shape[0]):
         x, y = stars[i]
-        y1, y2 = math.floor(y - radius), math.ceil(y + radius)
-        x1, x2 = math.floor(x - radius), math.ceil(x + radius)
+        y1, y2 = math.floor(y - radius), math.floor(y + radius)
+        x1, x2 = math.floor(x - radius), math.floor(x + radius)
         star = data[y1:y2, x1:x2]
         params = fitgaussian(star)
         ny, nx = params[1:3]
         centered_stars[i] = np.array([x1 + nx, y1 + ny])
 
-        if i == 40:
+        if i == 56 and DEBUG:
             plt.imshow(star)
             plt.contour(gaussian(*params)(*np.indices(star.shape)))
             plt.hlines([ny], *plt.ylim())
             plt.vlines([nx], *plt.xlim())
             plt.tight_layout()
 
-    return centered_stars
+    return stars, centered_stars
 
 if __name__ == '__main__':
+    DEBUG = True
     test_image = '/Users/tom/fits/transition/qatar1b-1.fits'
-    stars = find_star_coords(test_image, snr=3.5)
+    stars, centered = find_star_coords(test_image, snr=3.5)
     fig = aplpy.FITSFigure(test_image)
-    fig.show_colorscale(cmap='hot')
-    plt.plot(stars[:, 0], stars[:, 1], 'r+', markersize=8)
+    fig.show_colorscale(cmap='gist_heat')
+    plt.plot(stars[:, 0], stars[:, 1], 'y+', markersize=8)
+    plt.plot(centered[:, 0], centered[:, 1], 'g+', markersize=8)
+
+    counter = 0
+    for star in stars:
+        plt.annotate(counter, xy=(star[0], star[1]), xytext=(-10, 10),
+                     textcoords='offset points', ha='right', va='bottom',
+                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+                     arrowprops=dict(arrowstyle='->',
+                                     connectionstyle='arc3,rad=0'))
+        counter += 1
     plt.tight_layout()
     plt.show()
