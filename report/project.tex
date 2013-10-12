@@ -11,7 +11,8 @@
 \usepackage{graphicx}
 \usepackage{fullpage}
 \usepackage{titlesec}
-\usepackage[sorting=none]{biblatex}
+\usepackage[backend=biber,sorting=none]{biblatex}
+\bibliography{references}
 
 \providecommand{\e}[1]{\times10^{#1}}
 \providecommand{\units}[1]{\;\mathrm{#1}}
@@ -46,7 +47,6 @@
 \section{Introduction}
 \input{introduction}
 
-%\bibliographystyle{plain}
-%\bibliography{references}
+\printbibliography
 
 \end{document}
