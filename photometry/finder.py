@@ -12,6 +12,7 @@ import scipy.ndimage.filters as filters
 from scipy.ndimage import label, find_objects
 from scipy import optimize
 import math
+from ..common.gaussian import gaussian2D,  fit_gaussian2D
 
 DEBUG = False
 
@@ -19,21 +20,6 @@ DEBUG = False
 SNR = 5
 BG_THRESHOLD_PC = 30.
 SEARCH_RADIUS = 10
-
-
-def gaussian(height, cx, cy, w, h, c):
-    """Returns a gaussian function with the given parameters"""
-    return lambda x, y: height * np.exp(-(((cx - x) / w)**2 + ((cy - y) / h)**2) / 2) + c
-
-
-def fitgaussian(data):
-    """Returns (height, x, y, width_x, width_y)
-    the gaussian parameters of a 2D distribution found by a fit"""
-    def errorfunction(p):
-        return np.ravel(gaussian(*p)(*np.indices(data.shape)) - data) 
-    params = data.max(), data.shape[0] / 2, data.shape[1] / 2, 5, 5, data.mean()
-    p, success = optimize.leastsq(errorfunction, params, maxfev=3000)
-    return p
 
 
 def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
@@ -79,13 +65,13 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
         y1, y2 = math.floor(y - radius), math.floor(y + radius)
         x1, x2 = math.floor(x - radius), math.floor(x + radius)
         star = data[y1:y2, x1:x2]
-        params = fitgaussian(star)
+        params = fit_gaussian2D(star)
         ny, nx = params[1:3]
         centered_stars[i] = np.array([x1 + nx, y1 + ny])
 
         if i == 56 and DEBUG:
             plt.imshow(star)
-            plt.contour(gaussian(*params)(*np.indices(star.shape)))
+            plt.contour(gaussian2D(*params)(*np.indices(star.shape)))
             plt.hlines([ny], *plt.ylim())
             plt.vlines([nx], *plt.xlim())
             plt.tight_layout()

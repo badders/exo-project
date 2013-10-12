@@ -1,12 +1,26 @@
 
+# coding : utf-8
+"""
+Models planetary transits as a uniform disk (both planet and star)
+"""
+from __future__ import (division, print_function, absolute_import,
+                        unicode_literals)
+
 import numpy as np
 from astropy import constants as c
 from astropy import units as u
 from matplotlib import pyplot as plt
 from math import *
 
+def overlap_area(r1, r2, d):
+    def segment(r1, r2, d):
+        return r1**2 * acos((d**2 + r1**2 - r2**2) / (2 * d * r1))
+    return segment(r1, r2, d) + segment(r2, r1, d) - 0.5 * \
+        np.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) *
+                (d + r1 + r2))
 
-def simple_model(r, rp, mp, rs, ms, ls, d, n=1000, t_factor=0.05):
+
+def uniform_disk(r, rp, mp, rs, ms, ls, d, n=1000, t_factor=0.05):
     """
     Very simple model of planet transit
 
@@ -33,24 +47,33 @@ def simple_model(r, rp, mp, rs, ms, ls, d, n=1000, t_factor=0.05):
     # Loop over positions and check for occlusion
     i = 0
     for x, f in zip(xpos, flux):
-        if x > -rs and x < rs:
+        if x - rp > -rs and x + rp < rs:
+            # Full occlusion
             observed[i] = f * (rs**2 - rp**2) / (rs ** 2)
+        elif (x + rp > -rs and x - rp < -rs) or (x + rp > rs and x - rp < rs):
+            # Partial occlusion 
+            observed[i] = f * (pi * rs**2 - overlap_area(rp, rs, abs(x))) / (pi * rs**2)
         else:
             observed[i] = f
         i += 1
 
-    t = (t + t_factor * T) * u.s.to(u.min)
+    return t, observed
+
+if __name__ == '__main__':
+    # Simulation of large hot jupiter orbiting a star
+    t_factor = 0.0065
+    t, observed = uniform_disk(0.2 * c.au.value, 2 * c.R_jup.value,
+                               c.M_jup.value, c.R_sun.value, c.M_sun.value,
+                               c.L_sun.value, c.pc.value, 100, t_factor)
+
+    t = t * u.s.to(u.min)
     obs_pc = observed / observed.max() * 100
-    plt.plot(t, obs_pc)
-    plt.ylim(obs_pc.min() - 0.05, obs_pc.max() + 0.05)
-    plt.xlim(t.min(), t.max())
+    plt.plot(t - t.min(), obs_pc, 'bx')
+    pad = (obs_pc.max() - obs_pc.min()) / 20
+    plt.ylim(obs_pc.min() - pad, obs_pc.max() + pad)
+    plt.xlim(t.min() - t.min(), t.max() - t.min() )
     plt.title('Very Simple Model')
     plt.xlabel('Time / minutes')
     plt.ylabel('Relative Measured Flux Percentage')
 
-
-if __name__ == '__main__':
-    # Simulation of jupiter orbiting sun at 0.2 AU, viewed from a parsec
-
-    simple_model(0.2 * c.au, c.R_jup, c.M_jup, c.R_sun, c.M_sun, c.L_sun, c.pc)
     plt.show()
