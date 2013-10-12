@@ -1,0 +1,52 @@
+\documentclass[a4paper]{article}
+\title{Investigation into Exoplanets}
+\author{Tom Badran \\ badrant@cardiff.ac.uk}
+\date{September 2013 to May 2014}
+
+\usepackage[intlimits]{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{cancel}
+\usepackage[parfill]{parskip} 
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{titlesec}
+\usepackage[sorting=none]{biblatex}
+
+\providecommand{\e}[1]{\times10^{#1}}
+\providecommand{\units}[1]{\;\mathrm{#1}}
+\def\thesubsection {\alph{subsection})}
+\def\thesubsubsection {}
+\providecommand{\diff}[2]{\frac{\partial #1}{\partial #2}}
+\providecommand{\ddiff}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\providecommand{\tdiff}[2]{\frac{\mathrm{d} #1}{\mathrm{d} #2}}
+\providecommand{\infint}[2]{\int\limits_{-\infty}^{\infty}{#1}\;\mathrm{d}#2} 
+\providecommand{\MAA}{\text{\AA}}
+\providecommand{\abs}[1]{\left| #1 \right|} % for absolute value
+\providecommand{\avg}[1]{\left< #1 \right>} % for average
+\providecommand{\grad}[1]{\gv{\nabla} #1} % for gradient
+\let\divsymb=\div 
+\renewcommand{\div}[1]{\gv{\nabla} \cdot #1} % for divergence
+\providecommand{\curl}[1]{\gv{\nabla} \times #1} % for curl
+\providecommand{\MAA}{\text{\AA}}
+
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\numberwithin{equation}{section}
+
+\providecommand{\MJ}{\ensuremath{\units{M_J}}}
+\providecommand{\RJ}{\ensuremath{\units{R_J}}}
+
+\begin{document}
+
+\maketitle
+
+\abstract
+\input{abstract}
+
+\section{Introduction}
+\input{introduction}
+
+%\bibliographystyle{plain}
+%\bibliography{references}
+
+\end{document}
