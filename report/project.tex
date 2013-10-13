@@ -1,23 +1,22 @@
-\documentclass[a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \title{Investigation into Exoplanets}
-\author{Tom Badran \\ badrant@cardiff.ac.uk}
+\author{Tom Badran \\ \texttt{badrant@cardiff.ac.uk}}
 \date{September 2013 to May 2014}
 
 \usepackage[intlimits]{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{cancel}
-\usepackage[parfill]{parskip} 
+\usepackage{cancel} 
 \usepackage{graphicx}
 \usepackage{fullpage}
 \usepackage{titlesec}
+\usepackage{multicol}
 \usepackage[backend=biber,sorting=none]{biblatex}
 \bibliography{references}
+\renewcommand*{\bibfont}{\small}
 
 \providecommand{\e}[1]{\times10^{#1}}
 \providecommand{\units}[1]{\;\mathrm{#1}}
-\def\thesubsection {\alph{subsection})}
-\def\thesubsubsection {}
 \providecommand{\diff}[2]{\frac{\partial #1}{\partial #2}}
 \providecommand{\ddiff}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \providecommand{\tdiff}[2]{\frac{\mathrm{d} #1}{\mathrm{d} #2}}
@@ -44,9 +43,17 @@
 \abstract
 \input{abstract}
 
+%\tableofcontents
+
 \section{Introduction}
 \input{introduction}
 
+
+\section{Model}
+\input{model}
+
+\begin{multicols}{2}
 \printbibliography
+\end{multicols}
 
 \end{document}
