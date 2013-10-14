@@ -1,20 +1,14 @@
-\documentclass[10pt,a4paper]{article}
-\title{Investigation into Exoplanets}
-\author{Tom Badran \\ \texttt{badrant@cardiff.ac.uk}}
-\date{September 2013 to May 2014}
+\documentclass[a4paper]{emulateapj}
 
 \usepackage[intlimits]{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{cancel} 
 \usepackage{graphicx}
-\usepackage{fullpage}
-\usepackage{titlesec}
-\usepackage{multicol}
+\usepackage{mdwlist}
 \usepackage{hyperref}
-\usepackage[style=authoryear,backend=biber,sorting=none]{biblatex}
-\bibliography{references}
-\renewcommand*{\bibfont}{\small}
+\usepackage{color}
+%\citestyle{aa}
 
 \providecommand{\e}[1]{\times10^{#1}}
 \providecommand{\units}[1]{\;\mathrm{#1}}
@@ -37,22 +31,28 @@
 \providecommand{\MJ}{\ensuremath{\units{M_J}}}
 \providecommand{\RJ}{\ensuremath{\units{R_J}}}
 
+\shorttitle{Investigation into Exoplanets}
+\shortauthors{Tom Badran}
+
 \begin{document}
 
-\maketitle
+\title{Investigation into Exoplanets}
+\author{Tom Badran\altaffilmark{1}}
+\email{badrant@cardiff.ac.uk}
+\altaffiltext{1}{Cardiff School of Physics and Astronomy, Cardiff University, Queens Buildings, The Parade, Cardiff, Wales, CF24 3AA, UK}
+%\date{September 2013 to May 2014}
 
-\abstract
+\begin{abstract}
 \input{abstract}
-
-%\tableofcontents
+\end{abstract}
 
 \section{Introduction}
 \input{introduction}
 
-
 \section{Model}
 \input{model}
 
-\printbibliography
+%\bibliographystyle{apj}
+\bibliography{references}
 
 \end{document}
