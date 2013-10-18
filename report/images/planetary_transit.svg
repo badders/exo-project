@@ -7,8 +7,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="320mm"
-   height="100mm"
+   width="1048.0067"
+   height="288.67532"
    id="svg2985"
    version="1.1"
    inkscape:version="0.48.4 r9943 custom"
@@ -38,94 +38,96 @@
      inkscape:window-height="715"
      id="namedview3031"
      showgrid="false"
-     inkscape:zoom="2.4364961"
-     inkscape:cx="983.405"
-     inkscape:cy="87.621431"
+     inkscape:zoom="0.90727399"
+     inkscape:cx="270.40262"
+     inkscape:cy="144.33766"
      inkscape:window-x="247"
      inkscape:window-y="78"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2985" />
+     inkscape:current-layer="svg2985"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <defs
      id="defs2987">
     <marker
        inkscape:stockid="Arrow1Lstart"
        orient="auto"
-       refY="0.0"
-       refX="0.0"
+       refY="0"
+       refX="0"
        id="Arrow1Lstart"
        style="overflow:visible">
       <path
          id="path6485"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
-         transform="scale(0.8) translate(12.5,0)" />
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
     </marker>
     <marker
        inkscape:stockid="Arrow1Lend"
        orient="auto"
-       refY="0.0"
-       refX="0.0"
+       refY="0"
+       refX="0"
        id="Arrow1Lend"
-       style="overflow:visible;">
+       style="overflow:visible">
       <path
          id="path6488"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
-         transform="scale(0.8) rotate(180) translate(12.5,0)" />
-    </marker>
-    <marker
-       id="TriangleInL">
-      <path
-         transform="scale(-0.8)"
-         style="stroke:#000;stroke-width:1pt"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0z"
-         id="path2990" />
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
     </marker>
     <marker
        id="TriangleOutL">
       <path
-         transform="scale(0.8)"
-         style="stroke:#000;stroke-width:1pt"
-         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0z"
-         id="path2993" />
+         transform="scale(0.8,0.8)"
+         style="stroke:#000000;stroke-width:1pt"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         id="path2993"
+         inkscape:connector-curvature="0" />
     </marker>
   </defs>
   <path
-     style="fill:none;stroke:#000;stroke-width:1.3385174pt"
-     d="M 1079.8523,131.88422 C 1082.3807,96.698221 656.89471,93.410741 586.40178,94.414141 C 515.90885,93.410741 92.116856,96.931661 92.951226,132.11766 C 92.951226,96.093021 515.90881,93.410741 586.40178,93.410741 C 656.89471,92.407341 1083.2151,95.859581 1079.8523,131.88422z"
-     id="path2995" />
+     style="fill:none;stroke:#000000;stroke-width:1.33851738pt"
+     d="m 1042.955,104.00308 c 2.5284,-35.186002 -422.95756,-38.473482 -493.45049,-37.470082 -70.49293,-1.0034 -494.284918,2.51752 -493.450548,37.703522 0,-36.024642 422.957578,-38.706922 493.450548,-38.706922 70.49293,-1.0034 496.81329,2.44884 493.45049,38.473482 z"
+     id="path2995"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:#ffdd55;stroke:#000;stroke-width:1pt"
-     d="M 354.33071 343.70078 A 85.033073 88.58268 0 1 0 184.26456,343.70078 A 85.033073 88.58268 0 1 0 354.33071 343.70078z"
-     transform="matrix(1.158388,0,0,1.115764,276.2334,-256.0599)"
-     id="path2997" />
+     style="fill:#ffdd55;stroke:#000000;stroke-width:1.1368763pt"
+     d="m 649.78858,99.547918 a 98.501295,98.837369 0 1 0 -197.00259,0 98.501295,98.837369 0 0 0 197.00259,0 z"
+     id="path2997"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:none;stroke:#000;stroke-width:1.67300000000000004;marker-mid:none;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none;marker-start:none;stroke-linejoin:miter"
-     d="M 1079.8545,132.14322 C 1082.3829,167.32922 656.89694,170.6167 586.40401,169.6133 C 515.91108,170.6167 92.119085,167.09578 92.953451,131.90978 C 92.953451,167.93442 515.91104,170.6167 586.40401,170.6167 C 656.89694,171.6201 1083.2173,168.16786 1079.8545,132.14322z"
-     id="path2999" />
+     style="fill:none;stroke:#000000;stroke-width:1.67299998;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:none"
+     d="m 1042.9572,104.26208 c 2.5284,35.186 -422.95753,38.47348 -493.45046,37.47008 -70.49293,1.0034 -494.284919,-2.51752 -493.450553,-37.70352 0,36.02464 422.957583,38.70692 493.450553,38.70692 70.49293,1.0034 496.81326,-2.44884 493.45046,-38.47348 z"
+     id="path2999"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:#37c837;stroke:#000;stroke-width:1pt"
-     d="M 88.582679 312.86749 A 8.8582678 4.5997839 0 1 0 70.866143,312.86749 A 8.8582678 4.5997839 0 1 0 88.582679 312.86749z"
-     transform="matrix(1.046192,0,0,2.016756,363.0446,-461.3641)"
-     id="path3001" />
+     style="fill:#37c837;stroke:#000000;stroke-width:1.45255432pt"
+     d="m 418.82182,141.73215 a 9.2674491,9.276642 0 1 0 -18.53489,0 9.2674491,9.276642 0 0 0 18.53489,0 z"
+     id="path3001"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:#37c837;stroke:#000;stroke-width:1pt"
-     d="M 88.582679 312.86749 A 8.8582678 4.5997839 0 1 0 70.866143,312.86749 A 8.8582678 4.5997839 0 1 0 88.582679 312.86749z"
-     transform="matrix(1.046192,0,0,2.016756,415.74,-461.3441)"
-     id="path3003" />
+     style="fill:#37c837;stroke:#000000;stroke-width:1.45255432pt"
+     d="m 471.51722,141.75215 a 9.2674491,9.276642 0 1 0 -18.53489,0 9.2674491,9.276642 0 0 0 18.53489,0 z"
+     id="path3003"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:#37c837;stroke:#000;stroke-width:1pt"
-     d="M 88.582679 312.86749 A 8.8582678 4.5997839 0 1 0 70.866143,312.86749 A 8.8582678 4.5997839 0 1 0 88.582679 312.86749z"
-     transform="matrix(1.046192,0,0,2.016756,504.778,-461.3641)"
-     id="path3005" />
+     style="fill:#37c837;stroke:#000000;stroke-width:1.45255432pt"
+     d="m 560.55522,141.73215 a 9.2674491,9.276642 0 1 0 -18.53489,0 9.2674491,9.276642 0 0 0 18.53489,0 z"
+     id="path3005"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:none;stroke:#000;stroke-width:1.700007"
-     d="M 91.267862,241.32944 C 91.267862,241.32944 445.60149,241.32944 490.63621,241.32944 C 502.29485,241.32944 502.29485,269.67588 516.46821,271.49664 C 587.33493,271.49664 587.33493,271.49664 658.20165,271.49664 C 672.37501,269.67588 672.37501,241.32944 687.24733,241.32944 C 772.64953,241.32944 1012.5353,241.32944 1083.4020,241.32944"
-     id="path3007" />
+     style="fill:none;stroke:#000000;stroke-width:1.70000696"
+     d="m 54.370598,213.4483 c 0,0 354.333622,0 399.368342,0 11.65864,0 11.65864,28.34644 25.832,30.1672 70.86672,0 70.86672,0 141.73344,0 14.17336,-1.82076 14.17336,-30.1672 29.04568,-30.1672 85.4022,0 325.28797,0 396.15464,0"
+     id="path3007"
+     inkscape:connector-curvature="0" />
   <text
      style="font-size:48.00019073px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
-     x="72.702133"
-     y="92.648209"
+     x="35.805019"
+     y="64.766953"
      transform="scale(1.000004,0.999996)"
      id="text3013">
     <tspan
@@ -133,15 +135,15 @@
        style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Planet Orbit</tspan>
   </text>
   <path
-     style="fill:none;stroke:#000000;stroke-width:1.30400801000000000;marker-start:url(#Arrow1Lstart);marker-end:url(#Arrow1Lend)"
-     d="m 64.621172,189.04546 0,121.15176 1019.630828,0.50016"
+     style="fill:none;stroke:#000000;stroke-width:1.30400801;marker-start:url(#Arrow1Lstart);marker-end:url(#Arrow1Lend)"
+     d="m 27.723908,161.16432 0,121.15176 1019.630792,0.50016"
      id="path3017"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccc" />
   <text
      style="font-size:12.00004768px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
-     x="-283.69827"
-     y="47.717144"
+     x="-255.58565"
+     y="8.6640348"
      transform="matrix(0,-0.999996,1.000004,0,0,0)"
      id="text3019">
     <tspan
@@ -150,8 +152,8 @@
   </text>
   <text
      style="font-size:12.00004768px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
-     x="1014.8872"
-     y="341.94467"
+     x="974.33643"
+     y="272.65488"
      transform="scale(1.000004,0.999996)"
      id="text3023">
     <tspan
@@ -159,18 +161,18 @@
        style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Time</tspan>
   </text>
   <text
-     style="font-size:12;fill:#000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium;font-weight:500;font-style:normal;font-stretch:normal;font-variant:normal"
-     x="204.31667"
-     y="71.796989"
-     transform="scale(4.000032,4)"
+     style="font-size:48.00019073px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
+     x="150.72469"
+     y="256.87207"
+     transform="scale(1.000004,0.999996)"
      id="text3027">
     <tspan
        id="tspan3029"
-       style="-inkscape-font-specification:CMU Sans Serif Medium;font-family:CMU Sans Serif;font-weight:500;font-style:normal;font-stretch:normal;font-variant:normal">Light curve</tspan>
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Light curve</tspan>
   </text>
   <path
      style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#TriangleOutL)"
-     d="m 768.88203,167.75674 c 13.79763,0 5.74291,-0.8441 5.74291,-0.8441 l -0.83921,0.42205"
+     d="m 731.98476,139.8756 c 13.79763,0 5.74291,-0.8441 5.74291,-0.8441 l -0.83921,0.42205"
      id="path4739"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccc" />
