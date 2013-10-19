@@ -1,3 +1,4 @@
+# coding : utf-8
 """
 Models planetary transits as a uniform disk (both planet and star)
 """

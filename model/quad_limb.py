@@ -1,3 +1,4 @@
+# coding : utf-8
 """
 Models planetary transits using a quardratic approximation of limb darkening
 From Mandel & Agol 2002

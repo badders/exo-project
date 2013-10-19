@@ -1,4 +1,3 @@
-
 # coding : utf-8
 """
 Models planetary transits as a uniform disk (both planet and star)
@@ -121,14 +120,6 @@ def occultuniform(z, p, complement=False):
         fsecondary[i2] = (1./np.pi)*(p2*k0 + k1 - k2)
         fsecondary[i3] = p2
         fsecondary[i4] = 1.
-
-        if not (i1+i2+i3+i4).all():
-            print("warning -- some input values not indexed!")
-        if (i1.sum()+i2.sum()+i3.sum()+i4.sum() != z.size):
-            print("warning -- indexing didn't get the right number of values")
-            #pdb.set_trace()
-        
-
     else:  # scalar entered
         if (1+p)<=z:
             fsecondary = 0.
