@@ -53,7 +53,7 @@ class Transit:
         self.dec = file_.readline().strip()
 
     def __repr__(self):
-        return'{} to {}:{}, Mag: {} Dip: {}'.format(self.start_date, self.end_date.hour, self.end_date.minute, self.magnitude, self.magnitude_dip)
+        return'{} to {:02}:{:02}\tMag: {:.1f}\tDip: {:0.3f}\tAlt: {}'.format(self.start_date, self.end_date.hour, self.end_date.minute, self.magnitude, self.magnitude_dip, self.start_alt)
 
 def process_file(name='transit-predictions.txt'):
     f = open(name, encoding='utf-8')
@@ -76,6 +76,8 @@ def filter_func(transit):
     if transit.start_alt > 45:
         return False
     if transit.end_alt > 45:
+        return False
+    if transit.start_date <= datetime.utcnow():
         return False
 
     return True
