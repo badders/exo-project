@@ -21,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -34,15 +34,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1052"
-     inkscape:window-height="715"
+     inkscape:window-width="1440"
+     inkscape:window-height="852"
      id="namedview3031"
      showgrid="false"
-     inkscape:zoom="0.90727399"
-     inkscape:cx="270.40262"
+     inkscape:zoom="1.2585797"
+     inkscape:cx="524.00336"
      inkscape:cy="144.33766"
-     inkscape:window-x="247"
-     inkscape:window-y="78"
+     inkscape:window-x="0"
+     inkscape:window-y="22"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2985"
      fit-margin-top="0"
@@ -141,24 +141,24 @@
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccc" />
   <text
-     style="font-size:12.00004768px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
-     x="-255.58565"
-     y="8.6640348"
+     style="font-size:18px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
+     x="-269.09299"
+     y="17.404011"
      transform="matrix(0,-0.999996,1.000004,0,0,0)"
      id="text3019">
     <tspan
        id="tspan3021"
-       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Brightness</tspan>
+       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Brightness</tspan>
   </text>
   <text
-     style="font-size:12.00004768px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
+     style="font-size:18px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"
      x="974.33643"
      y="272.65488"
      transform="scale(1.000004,0.999996)"
      id="text3023">
     <tspan
        id="tspan3025"
-       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium">Time</tspan>
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium;font-size:18px">Time</tspan>
   </text>
   <text
      style="font-size:48.00019073px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;fill:#000000;font-family:CMU Sans Serif;-inkscape-font-specification:CMU Sans Serif Medium"

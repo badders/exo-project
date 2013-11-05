@@ -12,7 +12,7 @@ import scipy.ndimage.filters as filters
 from scipy.ndimage import label, find_objects
 from scipy import optimize
 import math
-from ..common.gaussian import gaussian2D,  fit_gaussian2D
+from common.gaussian import gaussian2D,  fitgaussian2D
 
 DEBUG = False
 
@@ -65,7 +65,7 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
         y1, y2 = math.floor(y - radius), math.floor(y + radius)
         x1, x2 = math.floor(x - radius), math.floor(x + radius)
         star = data[y1:y2, x1:x2]
-        params = fit_gaussian2D(star)
+        params = fitgaussian2D(star)
         ny, nx = params[1:3]
         centered_stars[i] = np.array([x1 + nx, y1 + ny])
 
@@ -78,7 +78,7 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
 
     return stars, centered_stars
 
-if __name__ == '__main__':
+def test():
     DEBUG = True
     test_image = '/Users/tom/fits/transition/qatar1b-1.fits'
     stars, centered = find_star_coords(test_image, snr=3.5)
@@ -96,4 +96,8 @@ if __name__ == '__main__':
                                      connectionstyle='arc3,rad=0'))
         counter += 1
     plt.tight_layout()
-    plt.show()
+    plt.show()    
+
+
+if __name__ == '__main__':
+    test()
