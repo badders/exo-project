@@ -6,14 +6,13 @@ from astropy.io import fits
 import numpy as np
 from matplotlib import pyplot as plt
 from os import path
-import aplpy
 from common.display import show_fits
 
-FLATS='/Users/tom/fits/test-data/flats/*.FIT'
-IMAGES='/Users/tom/fits/test-data/raw/*.FIT'
-CORRECTED_DEST='/Users/tom/fits/test-data/corrected/'
+FLATS = '/Users/tombadran/fits/test-data/flats/*.FIT'
+IMAGES = '/Users/tombadran/fits/test-data/raw/*.FIT'
+CORRECTED_DEST = '/Users/tombadran/fits/test-data/corrected/'
+DEBUG_IMAGE = '/Users/tombadran/fits/test-data/raw/hat-p-8-b3001.FIT'
 
-DEBUG_IMAGE='/Users/tom/fits/test-data/raw/hat-p-8-b3001.FIT'
 
 def generate_flat(pathname):
     """
@@ -25,12 +24,13 @@ def generate_flat(pathname):
     flat = np.zeros_like(fits_images[0][0].data)
 
     for im in fits_images:
-        flat += im[0].data 
+        flat += im[0].data
 
     flat = flat / len(fits_images)
     flat = flat / flat.mean()
 
     return flat
+
 
 def correct_images(pathname, dark_frame=None, flat_frame=None):
     """
@@ -38,7 +38,7 @@ def correct_images(pathname, dark_frame=None, flat_frame=None):
     """
     images = glob.glob(pathname)
     fits_images = [(path.basename(f), fits.open(f)) for f in images]
-    
+
     for f, hdulist in fits_images:
         print('Correcting {}'.format(f))
         if flat_frame is not None:
@@ -48,6 +48,7 @@ def correct_images(pathname, dark_frame=None, flat_frame=None):
 
 
 if __name__ == '__main__':
-    flat = generate_flat(FLATS)
-    correct_images(IMAGES)
+    finder.test(DEBUG_IMAGE, snr=3)
+    #flat = generate_flat(FLATS)
+    #correct_images(IMAGES)
     plt.show()
