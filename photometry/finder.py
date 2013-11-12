@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import scipy.ndimage.filters as filters
 from scipy.ndimage import label, find_objects
+from scipy.stats import mode
 from scipy import optimize
 import math
 from common.gaussian import gaussian2D,  fitgaussian2D
@@ -19,8 +20,8 @@ DEBUG = False
 DEBUG_STAR = 24
 
 # Default Parameters
-SNR = 5
-BG_THRESHOLD_PC = 30.
+SNR = 3
+BG_THRESHOLD_PC = 95.
 SEARCH_RADIUS = 10
 
 
@@ -32,7 +33,9 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
     hdulist = fits.open(image_file)
     data = hdulist[0].data
 
-    # 1. Calculate the average bavckground value
+    # 1. Remove anything lower than our SNR
+    #bg = mode(data)
+
     lower_bound = np.percentile(data, BG_THRESHOLD_PC)
     bg = (data[data < lower_bound]).mean()
 
