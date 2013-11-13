@@ -1,30 +1,34 @@
-\documentclass[apj]{emulateapj}
+%\documentclass[apj]{emulateapj}
+\documentclass{article}
 
 \usepackage[intlimits]{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{cancel} 
+\usepackage{cancel}
 \usepackage{graphicx}
 \usepackage{mdwlist}
 \usepackage{hyperref}
 \usepackage{color}
-%\citestyle{aa}
+\usepackage{natbib}
+
+\citestyle{aa}
+\bibliographystyle{apalike}
 
 \providecommand{\e}[1]{\times10^{#1}}
 \providecommand{\units}[1]{\;\mathrm{#1}}
 \providecommand{\diff}[2]{\frac{\partial #1}{\partial #2}}
 \providecommand{\ddiff}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \providecommand{\tdiff}[2]{\frac{\mathrm{d} #1}{\mathrm{d} #2}}
-\providecommand{\infint}[2]{\int\limits_{-\infty}^{\infty}{#1}\;\mathrm{d}#2} 
+\providecommand{\infint}[2]{\int\limits_{-\infty}^{\infty}{#1}\;\mathrm{d}#2}
 \providecommand{\MAA}{\text{\AA}}
 \providecommand{\abs}[1]{\left| #1 \right|} % for absolute value
 \providecommand{\avg}[1]{\left< #1 \right>} % for average
 \providecommand{\grad}[1]{\gv{\nabla} #1} % for gradient
-\let\divsymb=\div 
+\let\divsymb=\div
 \renewcommand{\div}[1]{\gv{\nabla} \cdot #1} % for divergence
 \providecommand{\curl}[1]{\gv{\nabla} \times #1} % for curl
 \providecommand{\MAA}{\text{\AA}}
-\providecommand{\figwidth}{.9\columnwidth}
+\providecommand{\figwidth}{.45\columnwidth}
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \numberwithin{equation}{section}
 
@@ -33,17 +37,16 @@
 \providecommand{\MS}{\ensuremath{\units{M_\odot}}}
 \providecommand{\RS}{\ensuremath{\units{R_\odot}}}
 
-\shorttitle{Detecting Extra-Solar Planets}
-\shortauthors{Tom Badran}
+\title{Detecting Extra-Solar Planets}
+\author{Tom Badran}
+%\email{badrant@cardiff.ac.uk}
+%\affiliation{Cardiff School of Physics and Astronomy}
+%\altaffiltext{1}{Cardiff School of Physics and Astronomy, Cardiff University, Queens Buildings, The Parade, Cardiff, Wales, CF24 3AA, UK}
+\date{September 2013 to May 2014}
 
 \begin{document}
 
-\title{Detecting Extra-Solar Planets}
-\author{Tom Badran\altaffilmark{1}}
-\email{badrant@cardiff.ac.uk}
-\affiliation{Cardiff School of Physics and Astronomy}
-\altaffiltext{1}{Cardiff School of Physics and Astronomy, Cardiff University, Queens Buildings, The Parade, Cardiff, Wales, CF24 3AA, UK}
-\date{September 2013 to May 2014}
+\maketitle
 
 \begin{abstract}
 \input{abstract}
@@ -55,7 +58,6 @@
 \section{Model}
 \input{model}
 
-%\bibliographystyle{apj}
 \bibliography{references}
 
 \end{document}
