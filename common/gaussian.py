@@ -21,5 +21,5 @@ def fitgaussian2D(data):
     def errorfunction(p):
         return np.ravel(gaussian2D(*p)(*np.indices(data.shape)) - data)
     params = data.max(), data.shape[0] / 2, data.shape[1] / 2, 5, 5, data.mean()
-    p, success = optimize.leastsq(errorfunction, params, maxfev=3000)
+    p, success = optimize.leastsq(errorfunction, params)
     return p

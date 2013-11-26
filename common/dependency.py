@@ -15,7 +15,12 @@ def update_required(dest, pathname):
     except OSError:
         return True
 
-    for fn in glob.glob(pathname):
+    if isinstance(pathname, basestring):
+        files = glob.glob(pathname)
+    else:
+        files = pathname
+
+    for fn in files:
         if os.stat(fn).st_mtime >= dest_time:
             return True
 

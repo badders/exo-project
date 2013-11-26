@@ -1,27 +1,29 @@
 from datetime import datetime, timedelta
 import codecs
 
+
 class Transit:
+
     def __init__(self, file_):
         self.name = file_.readline().strip()
         if self.name == '':
             raise IOError
 
         l2 = file_.readline().strip()
-            
+
         if not l2[0].isdigit():
             l2 = file_.readline().strip()
-            
+
         start_hour, start_minute = l2.split(':')
 
         l3 = file_.readline().strip()
-        
+
         start_alt, start_date, center_time = l3.split()
-        
+
         start_day, start_month, _ = start_date.split('.')
         center_hour, center_minute = center_time.split(':')
 
-        l4= file_.readline().strip()
+        l4 = file_.readline().strip()
         center_alt, end_time = l4.split()
         end_hour, end_minute = end_time.split(':')
 
@@ -49,7 +51,8 @@ class Transit:
 
         self.start_date = datetime(year, start_month, int(start_day), int(start_hour), int(start_minute))
 
-        self.end_date = self.start_date.replace(hour=int(end_hour), minute=int(end_minute))
+        self.end_date = self.start_date.replace(
+            hour=int(end_hour), minute=int(end_minute))
 
         if int(end_hour) < int(start_hour):
             self.end_date = self.end_date + timedelta(days=1)
@@ -59,7 +62,8 @@ class Transit:
         self.dec = file_.readline().strip()
 
     def __repr__(self):
-        return'{} to {:02}:{:02}\tMag: {:.1f}\tDip: {:0.3f}\tAlt: {}'.format(self.start_date, self.end_date.hour, self.end_date.minute, self.magnitude, self.magnitude_dip, self.start_alt)
+        return'{} to {:02}:{:02}\tMag: {:.1f}\tDip: {:0.3f}\tAlt: {}\t{}'.format(self.start_date, self.end_date.hour, self.end_date.minute, self.magnitude, self.magnitude_dip, self.start_alt, self.name)
+
 
 def process_file(name='transit-predictions.txt'):
     f = codecs.open(name, encoding='utf-8')
@@ -77,11 +81,11 @@ def process_file(name='transit-predictions.txt'):
 def filter_func(transit):
     if transit.magnitude_dip < 0.01:
         return False
-    if transit.magnitude > 12:
+    if transit.magnitude > 14:
         return False
-    if transit.start_alt > 45:
+    if transit.start_alt > 30:
         return False
-    if transit.end_alt > 45:
+    if transit.end_alt > 30:
         return False
     if transit.start_date <= datetime.utcnow():
         return False
@@ -89,7 +93,8 @@ def filter_func(transit):
     return True
 
 if __name__ == '__main__':
-    transits = process_file('transit-2.txt')
+    transits = process_file('transit-predictions.txt')
     ts = [t for t in transits if filter_func(t)]
+
     for t in ts:
         print(t)

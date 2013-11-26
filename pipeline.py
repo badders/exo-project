@@ -1,19 +1,23 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
-from photometry import finder
 import glob
-from astropy.io import fits
+
 import numpy as np
 from matplotlib import pyplot as plt
 from os import path
+from astropy.io import fits
 from common.display import show_fits, show_header
 from common.dependency import update_required
+from common.gaussian import gaussian2D,  fitgaussian2D
+from photometry import finder
+import subprocess
 
 
 FLATS = '/Users/tombadran/fits/test-data/flats/*.FIT'
 BIAS = '/Users/tombadran/fits/test-data/bias/*.FIT'
 IMAGES = '/Users/tombadran/fits/test-data/raw/*.FIT'
 CORRECTED_DEST = '/Users/tombadran/fits/test-data/corrected/'
+DATA_DEST = '/Users/tombadran/fits/test-data/corrected/data/'
 
 
 def generate_bias(pathname, force=False):
@@ -23,16 +27,16 @@ def generate_bias(pathname, force=False):
     BIAS_IMAGE = CORRECTED_DEST + 'bias.fits'
 
     if force or update_required(BIAS_IMAGE, pathname):
-        print('Building new bias image')
         images = glob.glob(pathname)
         fits_images = [fits.open(f) for f in images]
+        print('Building new bias image')
         bias = np.zeros(fits_images[0][0].shape, dtype=np.float64)
 
         for im in fits_images:
             bias += im[0].data
 
         bias = bias / len(fits_images)
-        fits_images[0].data = bias
+        fits_images[0][0].data = bias
         fits_images[0].writeto(BIAS_IMAGE, clobber=True)
     else:
         print('Bias already up to date')
@@ -48,16 +52,21 @@ def generate_flat(pathname, force=False):
     FLAT_IMAGE = CORRECTED_DEST + 'flat.fits'
 
     if force or update_required(FLAT_IMAGE, pathname):
-        print('Building new flat image')
         images = glob.glob(pathname)
         fits_images = [fits.open(f) for f in images]
+        print('Building new flat image')
         flat = np.zeros(fits_images[0][0].shape, dtype=np.float64)
 
         for im in fits_images:
             flat += im[0].data
 
         flat = flat / flat.mean()
-        fits_images[0].data = flat
+
+        print('Gaussian fitting the flat image')
+        params = fitgaussian2D(flat)
+        flat = gaussian2D(*params)(*np.indices(flat.shape))
+
+        fits_images[0][0].data = flat
         fits_images[0].writeto(FLAT_IMAGE, clobber=True)
     else:
         print('Flat already up to date')
@@ -65,7 +74,7 @@ def generate_flat(pathname, force=False):
     return FLAT_IMAGE
 
 
-def correct_images(pathname, dark_frame=None, flat_frame=None):
+def correct_images(pathname, dark_frame=None, flat_frame=None, force=False):
     """
     Load a set of images and correct them using optional dark and flat frames
     """
@@ -78,7 +87,7 @@ def correct_images(pathname, dark_frame=None, flat_frame=None):
     corrected_images = []
     for f, hdulist in fits_images:
         fn = CORRECTED_DEST + f
-        if update_required(fn, dark_frame) and update_required(fn, flat_frame):
+        if force or update_required(fn, dark_frame) or update_required(fn, flat_frame):
             print('Correcting {}'.format(f))
 
             if dark_frame is not None:
@@ -94,14 +103,59 @@ def correct_images(pathname, dark_frame=None, flat_frame=None):
     return corrected_images
 
 
+
+def do_photometry(data, star, cal_stars):
+    fluxes = []
+    errs = []
+    times = []
+    x0 = data[0][1]['X_IMAGE'][star]
+    y0 = data[0][1]['Y_IMAGE'][star]
+    aperture_r = sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'][star]
+
+    print(x0, y0)
+    for time, image in data:
+        flux = image['FLUX_BEST'][star]
+        err = image['FLUXERR_BEST'][star]
+        x1 = image['X_IMAGE'][star]
+        y1 = image['Y_IMAGE'][star]
+        print(x1, y1, np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2))
+
+        fluxes.append(flux)
+        errs.append(err)
+        times.append(time)
+
+    times = np.arange(len(fluxes))
+    return times, fluxes, errs
+
+
 if __name__ == '__main__':
     #finder.test(DEBUG_IMAGE, snr=3)
     bias = generate_bias(BIAS)
     flat = generate_flat(FLATS)
-    #show_fits(DEBUG_IMAGE)
-    #show_fits(flat)
+    # show_fits(DEBUG_IMAGE)
+    # show_fits(flat)
     im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
-    show_fits(im[0])
-    #show_header(im[0])
+    # show_header(im[0])
     #finder.test(im[0], snr=5)
+
+    sources = finder.run_sextractor(im, DATA_DEST=DATA_DEST)
+    fig = show_fits(im[0])
+    plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'rx')
+
+    # counter = 0
+    # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
+    #     plt.annotate(counter, xy=(x, y), xytext=(-10, 10),
+    #                  textcoords='offset points', ha='right', va='bottom',
+    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+    #                  arrowprops=dict(arrowstyle='->',
+    #                                  connectionstyle='arc3,rad=0'))
+    #     counter += 1)
+    fig.show_circles(sources[0][1]['X_IMAGE'] + 1,
+                     sources[0][1]['Y_IMAGE'] + 1,
+                     sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
+                     color='y', linewidth=1)
+
+    # times, fluxes, errs = do_photometry(sources, 91, [])
+    # plt.figure()
+    #plt.errorbar(times, fluxes, yerr=errs)
     plt.show()

@@ -5,6 +5,7 @@ import aplpy
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import Tkinter
+import numpy as np
 
 def show_fits(data, **kwargs):
     fig = plt.figure()
@@ -14,7 +15,8 @@ def show_fits(data, **kwargs):
         kwargs['cmap'] = 'gray'
     fig.show_colorscale(aspect='auto', **kwargs)
     fig.ticks.hide()
-    #fig.tight_layout()
+    plt.ylim(tuple(reversed(plt.ylim())))
+    return fig
 
 
 def show_header(filename):

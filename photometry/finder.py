@@ -12,9 +12,14 @@ import scipy.ndimage.filters as filters
 from scipy.ndimage import label, find_objects
 from scipy.stats import mode
 from scipy import optimize
+from common.dependency import update_required
 import math
 from common.gaussian import gaussian2D,  fitgaussian2D
 from common.display import show_fits
+from astropy.io import fits, ascii
+from astropy.table import Table
+from astropy.time import Time
+from os import path
 
 DEBUG = False
 DEBUG_STAR = 24
@@ -23,7 +28,15 @@ DEBUG_STAR = 24
 SNR = 3
 BG_THRESHOLD_PC = 95.
 SEARCH_RADIUS = 10
+SNR_FLUX_RADIUS = 4
 
+def check_around_point(data, bg, snr, x_center, y_center):
+    for x in range(-SNR_FLUX_RADIUS, SNR_FLUX_RADIUS):
+        for y in range(-SNR_FLUX_RADIUS, SNR_FLUX_RADIUS):
+            if x**2 + y**2 < SNR_FLUX_RADIUS**2:
+                pass
+
+    return True
 
 def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
     """
@@ -59,10 +72,11 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
             valid = False
         if x_center > width - radius or y_center > width - radius:
             valid = False
+        valid = valid and check_around_point(data, bg, snr, x_center, y_center)
         if valid:
             stars.append([x_center, y_center])
     stars = np.array(stars)
-    centered_stars = np.zeros_like(stars)
+    centered_stars = []
 
     # 3. Now refine these maxima to star central points
     for i in range(stars.shape[0]):
@@ -84,6 +98,31 @@ def find_star_coords(image_file, snr=SNR, radius=SEARCH_RADIUS):
 
     return stars, centered_stars
 
+
+def run_sextractor(images, force=False, DATA_DEST='', **params):
+    param_str = ''
+    for p, v in params:
+        param_str += '-{} {} '.format(p, v)
+
+    output = []
+
+    for i in range(0, len(images)):
+        RESULTS_FILE = DATA_DEST + path.basename(images[i]) + '.dat'
+        if force or update_required(RESULTS_FILE, images[i]) or update_required(RESULTS_FILE, 'default.param'):
+            subprocess.check_output('sex {} -c config.sex '.format(images[i]) +
+                                    param_str,
+                                    shell=True)
+            se = ascii.SExtractor()
+            data = se.read(open('test.cat').read())
+            data.write(RESULTS_FILE, format='ascii')
+        else:
+            data = Table.read(RESULTS_FILE, format='ascii')
+
+        time = Time(fits.open(images[i])[0].header['DATE-OBS'], scale='utc')
+
+        output.append((time, data))
+
+    return output
 
 def test(test_image='/Users/tombadran/fits/transition/qatar1b-1.fits', snr=3, radius=SEARCH_RADIUS):
     global DEBUG
