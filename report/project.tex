@@ -10,6 +10,7 @@
 \usepackage{hyperref}
 \usepackage{color}
 \usepackage{natbib}
+\usepackage[nottoc,numbib]{tocbibind}
 
 \citestyle{aa}
 \bibliographystyle{apalike}
@@ -37,6 +38,8 @@
 \providecommand{\MS}{\ensuremath{\units{M_\odot}}}
 \providecommand{\RS}{\ensuremath{\units{R_\odot}}}
 
+\renewcommand{\bibname}{References}
+
 \title{Detecting Extra-Solar Planets}
 \author{Tom Badran}
 %\email{badrant@cardiff.ac.uk}
@@ -47,6 +50,8 @@
 \begin{document}
 
 \maketitle
+
+\tableofcontents
 
 \begin{abstract}
 \input{abstract}

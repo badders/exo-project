@@ -10,8 +10,8 @@ from common.display import show_fits, show_header
 from common.dependency import update_required
 from common.gaussian import gaussian2D,  fitgaussian2D
 from photometry import finder
-import subprocess
 
+from scipy import ndimage
 
 FLATS = '/Users/tombadran/fits/test-data/flats/*.FIT'
 BIAS = '/Users/tombadran/fits/test-data/bias/*.FIT'
@@ -103,6 +103,17 @@ def correct_images(pathname, dark_frame=None, flat_frame=None, force=False):
     return corrected_images
 
 
+def im_diff(im1, im2):
+    """
+    Return the absolute pixel difference between two images after normalisation.
+    """
+    return abs((im1 / im1.mean()) - (im2 / im2.mean())).sum()
+
+def im_shift(im, shift, angle):
+    bg = np.median(im.flatten())
+    rotated = ndimage.rotate(im, angle, cval=bg, reshape=False)
+    shifted = ndimage.shift(rotated, shift, cval=bg)
+    return shifted
 
 def do_photometry(data, star, cal_stars):
     fluxes = []
@@ -139,9 +150,13 @@ if __name__ == '__main__':
     #finder.test(im[0], snr=5)
 
     sources = finder.run_sextractor(im, DATA_DEST=DATA_DEST)
+
     fig = show_fits(im[0])
     plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'rx')
 
+    print(im[0])
+
+    fig = show_fits(im_shift(fits.open(im[0])[0].data, [100, 200], 15))
     # counter = 0
     # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
     #     plt.annotate(counter, xy=(x, y), xytext=(-10, 10),
@@ -153,7 +168,7 @@ if __name__ == '__main__':
     fig.show_circles(sources[0][1]['X_IMAGE'] + 1,
                      sources[0][1]['Y_IMAGE'] + 1,
                      sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
-                     color='y', linewidth=1)
+                     edgecolor='y', linewidth=1)
 
     # times, fluxes, errs = do_photometry(sources, 91, [])
     # plt.figure()

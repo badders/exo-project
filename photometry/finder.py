@@ -20,6 +20,7 @@ from astropy.io import fits, ascii
 from astropy.table import Table
 from astropy.time import Time
 from os import path
+import subprocess
 
 DEBUG = False
 DEBUG_STAR = 24
@@ -109,7 +110,7 @@ def run_sextractor(images, force=False, DATA_DEST='', **params):
     for i in range(0, len(images)):
         RESULTS_FILE = DATA_DEST + path.basename(images[i]) + '.dat'
         if force or update_required(RESULTS_FILE, images[i]) or update_required(RESULTS_FILE, 'default.param'):
-            subprocess.check_output('sex {} -c config.sex '.format(images[i]) +
+            subprocess.check_output('/opt/local/bin/sex {} -c config.sex '.format(images[i]) +
                                     param_str,
                                     shell=True)
             se = ascii.SExtractor()
