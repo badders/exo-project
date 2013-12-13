@@ -1,5 +1,4 @@
-%\documentclass[apj]{emulateapj}
-\documentclass{article}
+\documentclass[a4paper]{article}
 
 \usepackage[intlimits]{amsmath}
 \usepackage{amsthm}
@@ -10,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{color}
 \usepackage{natbib}
+\usepackage{listings}
 \usepackage[nottoc,numbib]{tocbibind}
 
 \citestyle{aa}
@@ -52,10 +52,12 @@
 \maketitle
 
 \tableofcontents
+\listoffigures
+\listoftables
 
-\begin{abstract}
-\input{abstract}
-\end{abstract}
+% \begin{abstract}
+% \input{abstract}
+% \end{abstract}
 
 \section{Introduction}
 \input{introduction}
@@ -63,6 +65,21 @@
 \section{Model}
 \input{model}
 
+\section{Observations}
+\input{observing}
+
+\section{Data processing pipeline}
+\input{pipeline}
+
+\section{Plans for second semester}
+\input{futurework}
+
 \bibliography{references}
+
+\break
+\appendix
+\addcontentsline{toc}{section}{Appendices}
+
+\input{listings}
 
 \end{document}

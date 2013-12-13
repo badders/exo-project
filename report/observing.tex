@@ -1,0 +1,56 @@
+%!TEX root = project.tex
+
+\subsection{Choosing Observing Targets}
+
+The database at \url{http://var2.astro.cz/ETD/predictions.php} currently contains all know planetary transits, and can filter potential visible transits based on location. Using this database can quickly give us observing targets and expected transit times quickly for the few opportunities we have to observe. This data is then further filtered to find transits that fit the following criteria:
+\begin{itemize}
+  \item Transit occurs above thirty degrees altitude
+  \item Target star has an expected magnitude less than 15 (airmass less than about 2)
+  \item Magnitude change of the transit is greater than 0.01
+\end{itemize}
+
+\subsection{Observing Diary}
+
+\subsubsection*{Tuesday, 19th November, 2013}
+
+Due to the telescope not being correctly aligned, and having no model of the sky on which to build a model for object discovery and tracking, the first thing I had to as actually get the telescope into a usable state. After following the standard procedure for powering up the dome and telescope control systems, we performed a drift alignment on the telescope.
+
+The telescope is an f4 20" Newtonian on a fork equatorial mount. To drift align the telescope we performed the following steps.
+\begin{enumerate}
+    \item Manually point to a star near the meridian
+    \item Swap to the cross hair high magnification eyepiece
+    \item Align the cross hair on the eye piece to the center of the star using telescope control
+    \item \label{align-step}Allow telescope to track for around 5 minutes
+    \item Check if star is still centered along axis
+    \item If not, adjust the mount calibration control for altitude or azimuth, depending on which axis we are calibrating for, and repeat from \ref{align-step}
+    \item Repeat for the other axis
+\end{enumerate}
+
+After performing the drift alignment, the weather took a turn for the worse, and so were unable to complete the rest of the modeling process.
+
+\subsubsection*{Wednesday, 20th November, 2013}
+
+With the telescope already drift aligned, all that needed to be done is build the software calibration model used to compensate for systematic errors in the mount alignment. To do this we use a software package called T-Point. This software builds a model of the sky based on repeated alignments onto a number of known stars. 20 stars chosen across the night sky is generally considered the minimum to produce an accurate model. After building the initial model, further systematic errors, such as changes in the optical setup, can be calibrated for by building a small t-point model using a small number (around 6 or 7) known stars.
+
+The steps required to build the model are as follows:
+\begin{enumerate}
+  \item Ensure the hour angle and declination are set to 2.0 and 0 respectively in the telescope control software
+  \item Flash these values to the mount firmware
+  \item Ensure clock and location settings are as accurate as possible
+  \item Request telescope to slew to home location
+  \item \label{slew-star}Slew to the nearest easily identifiable star, ensuring the mount doesn't flip
+  \item Center the star in the eyepiece, adjusting using only the telescope control joystick
+  \item Save this star into the model
+  \item Repeat from \ref{slew-star} for various stars across the whole sky until the model contains at least 20 stars
+  \item Save the model
+\end{enumerate}
+
+After performing this calibration on 27 stars, we then tested the model by doing some visual observations of Vega, M33 and Deneb. In each case the system found the object perfectly. Unfortunately the seeing was not good enough to attempt any photometric obvservations, and the weather was getting progressively worse throughout the evening.
+
+\subsubsection*{Thursday, 21st November, 2013}
+
+As we weren't familiar with the t-point software we planned on using the model again tonight. We connected the Mintron camera to the telescope eyepiece adapter, and connected the video output of the camera a splitter so we had a video signal in the dome, and one in the telescope control room.
+
+First we slewed the telescope to Vega, and it was off by a small amount, which was to be expected as this was a different observing night. However we mistakenly re-synced the mount coordinates, rather than just adding new stars to small temporary t-point model. Unfortunately this shifted our model by approximately three arc minutes. When re-syncing again it shifted the model by a further 3 arc minutes, leaving objects well beyond the field of view of the camera. There was no way to fix this we could find, and unfortunately it seems we have to disregard the model we made and create a new one.
+
+After a few hours experimenting with trying to fix the setup, the sky became overcast and we were unable to continue.

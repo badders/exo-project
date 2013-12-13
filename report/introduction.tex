@@ -15,7 +15,7 @@ The favourite motivator is of course the search for life beyond our own. While t
 
 By observing the flux from a star over period of time, any orbiting planet that passes in front of the star will cause a slight dip in the observed flux. This change in the light curve allows one to calculate the relative sizes of the planet and the star.
 
-Advantages:
+\paragraph{Advantages:}
 \begin{itemize*}
     \item Easy to Perform
     \item Can be done at optical wavelengths
@@ -34,7 +34,7 @@ As well as determining properties of the planet from the transit, by examining t
 
 The period ($T$) of the planetary orbit can be figured out trivially by looking at the time between light curves. However large quantities observations need to be taken
 
-\begin{figure}[\here]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.8\textwidth]{images/planetary_transit.pdf}
     \caption{Example of simple model of planetary transit and the expected light curve}
@@ -66,7 +66,7 @@ Pulsars rotate very rapidly, and emit radio waves as they do. The regularity of 
 
 \subsubsection{Direct Observation}
 
-\begin{figure}[\here]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\figwidth]{images/direct_image.png}
     \caption{Direct image of 2MASS J01033563-5515561ABb, sourced from \cite{delorme2013direct}. The green arrow shows the position of the companion, and the blue circle shows where a background source would be expected.}
@@ -74,3 +74,11 @@ Pulsars rotate very rapidly, and emit radio waves as they do. The regularity of 
 \end{figure}
 
 Under the right conditions, it can be possible to now see exoplanets directly \citep{lafreniere2010directly,kuzuhara2013direct,delorme2013direct}. Obviously stars are very bright compared to their orbiting planets making this technique a bad choice for discovering earth like planets. However large planets, many times the mass of Jupiter are observable. Using a coronagraph on the telescope limits the light from the star \citep{kuchner2002coronagraph}, and observing at infra red wavelengths can overcome the relative brightness problem \citep{delorme2013direct}.
+
+\subsection{Aims and Objectives}
+\begin{itemize}
+\item Create a computer software to simulate the change in observed flux from a planetary transit.
+\item Observe know transits from the rooftop observatory, perform all the necessary data reduction and show that it is possible to perform useful observations even with the poor seeing in Cardiff.
+\item Create a computer software that performs automated aperture photometry of stars, and use this with any observational data collected.
+\item Use any observations obtained and the software pipeline constructed to infer properties of the transiting planets.
+\end{itemize}

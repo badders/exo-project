@@ -1,0 +1,23 @@
+%!TEX root = project.tex
+
+\providecommand{\pycode}[3]{
+  \subsection{#1}
+  \lstinputlisting[title=#3, breaklines=true, basicstyle=\scriptsize\ttfamily, numbers=left, tabsize=4,language=Python]{#2}
+}
+
+\providecommand{\configfile}[1]{
+  \lstinputlisting[breaklines=true, basicstyle=\scriptsize\ttfamily, numbers=left, tabsize=4]{#1}
+}
+\section{Code Listings}
+
+\pycode{Main Pipeline}{../pipeline.py}{pipeline.py}
+\pycode{Uniform Disk Model}{../model/uniform_disk.py}{model/uniform\_disk.py}
+\pycode{Quadratic Limb-Darkening Model}{../model/quad_limb.py}{model/quad\_limb.py}
+Large portions of code in this file was sourced from \citep{mandel2002analytic}.
+\pycode{File modification time dependency checking}{../common/dependency.py}{common/dependency.py}
+\pycode{Fits Image Display and Data Visualisation}{../common/display.py}{common/display.py}
+\pycode{Gaussian fitting routines}{../common/gaussian.py}{common/gaussian.py}
+
+\section{SExtractor Configuration}
+
+\configfile{../config.sex}

@@ -152,11 +152,11 @@ if __name__ == '__main__':
     sources = finder.run_sextractor(im, DATA_DEST=DATA_DEST)
 
     fig = show_fits(im[0])
-    plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'rx')
+    plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'ro', markersize=4)
 
     print(im[0])
 
-    fig = show_fits(im_shift(fits.open(im[0])[0].data, [100, 200], 15))
+    # fig = show_fits(im_shift(fits.open(im[0])[0].data, [100, 200], 15))
     # counter = 0
     # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
     #     plt.annotate(counter, xy=(x, y), xytext=(-10, 10),
@@ -165,10 +165,10 @@ if __name__ == '__main__':
     #                  arrowprops=dict(arrowstyle='->',
     #                                  connectionstyle='arc3,rad=0'))
     #     counter += 1)
-    fig.show_circles(sources[0][1]['X_IMAGE'] + 1,
-                     sources[0][1]['Y_IMAGE'] + 1,
-                     sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
-                     edgecolor='y', linewidth=1)
+    # fig.show_circles(sources[0][1]['X_IMAGE'] + 1,
+    #                  sources[0][1]['Y_IMAGE'] + 1,
+    #                  sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
+    #                  edgecolor='y', linewidth=1)
 
     # times, fluxes, errs = do_photometry(sources, 91, [])
     # plt.figure()
