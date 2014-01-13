@@ -15,7 +15,7 @@ def show_fits(data, **kwargs):
         kwargs['cmap'] = 'gray'
     fig.show_colorscale(aspect='auto', **kwargs)
     fig.ticks.hide()
-    plt.ylim(tuple(reversed(plt.ylim())))
+    #plt.ylim(tuple(reversed(plt.ylim())))
     return fig
 
 

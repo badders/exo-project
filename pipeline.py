@@ -12,12 +12,14 @@ from common.gaussian import gaussian2D,  fitgaussian2D
 from photometry import finder
 
 from scipy import ndimage
+from scipy import optimize
 
 FLATS = '/Users/tombadran/fits/test-data/flats/*.FIT'
 BIAS = '/Users/tombadran/fits/test-data/bias/*.FIT'
 IMAGES = '/Users/tombadran/fits/test-data/raw/*.FIT'
 CORRECTED_DEST = '/Users/tombadran/fits/test-data/corrected/'
 DATA_DEST = '/Users/tombadran/fits/test-data/corrected/data/'
+ALIGNED_DEST = '/Users/tombadran/fits/test-data/aligned/'
 
 
 def generate_bias(pathname, force=False):
@@ -105,15 +107,63 @@ def correct_images(pathname, dark_frame=None, flat_frame=None, force=False):
 
 def im_diff(im1, im2):
     """
-    Return the absolute pixel difference between two images after normalisation.
+    Return the absolute pixel difference between two images after
+    normalisation.
     """
-    return abs((im1 / im1.mean()) - (im2 / im2.mean())).sum()
+    i1 = im1 - np.median(im1.flatten())
+    i2 = im2 - np.median(im2.flatten())
+    return np.sqrt(abs(i1**2 - i2**2)).sum()
 
-def im_shift(im, shift, angle):
+
+def im_shift(im, shiftx, shifty, angle=0):
     bg = np.median(im.flatten())
-    rotated = ndimage.rotate(im, angle, cval=bg, reshape=False)
-    shifted = ndimage.shift(rotated, shift, cval=bg)
+    rotated = im # ndimage.rotate(im, angle, cval=bg, reshape=False)
+    shifted = ndimage.shift(rotated, [shiftx, shifty], cval=bg)
     return shifted
+
+
+def track_image_shift(im1, im2, guess=np.array([0., 0.])):
+    err_func = lambda p: im_diff(im1, im_shift(im2, *p))
+    echo = lambda xk: print('Parameters: {}'.format(xk))
+    out = optimize.fmin_powell(err_func, guess, xtol=0.01, callback=echo, full_output=1)
+    params = out[0]
+    return params
+
+
+def align_images(pathname, force=False):
+    """
+    Load a set of images and align them
+    """
+    images = glob.glob(pathname)
+    corrected_images = [ALIGNED_DEST + path.basename(images[0])]
+
+    fn = ALIGNED_DEST + path.basename(images[0])
+    if force or update_required(fn, images[0]):
+        hdulist = fits.open(images[0])
+        hdulist.writeto(fn, clobber=True)
+
+    guess = np.array([3., -3.])
+    for i in range(len(images) - 1):
+        f1 = ALIGNED_DEST + path.basename(images[i])
+        f2 = images[i+1]
+        f = path.basename(f2)
+        fn = ALIGNED_DEST + f
+        if force or update_required(fn, f1) or update_required(fn, f2):
+            print('Aligning {}'.format(f))
+
+            hdulist1 = fits.open(f1)
+            hdulist2 = fits.open(f2)
+            params = track_image_shift(hdulist1[0].data, hdulist2[0].data, guess)
+
+            hdulist2[0].data = im_shift(hdulist2[0].data, *params)
+            hdulist2.writeto(fn, clobber=True)
+            guess = params + np.array([3, -3])
+        else:
+            print('{} already aligned'.format(f))
+        corrected_images.append(fn)
+
+    return corrected_images
+
 
 def do_photometry(data, star, cal_stars):
     fluxes = []
@@ -145,18 +195,18 @@ if __name__ == '__main__':
     flat = generate_flat(FLATS)
     # show_fits(DEBUG_IMAGE)
     # show_fits(flat)
-    im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
+    correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
     # show_header(im[0])
     #finder.test(im[0], snr=5)
-
+    im = align_images(CORRECTED_DEST + 'hat*.FIT')
     sources = finder.run_sextractor(im, DATA_DEST=DATA_DEST)
 
+    print(im[0], im[-1])
     fig = show_fits(im[0])
-    plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'ro', markersize=4)
+    fig = show_fits(im[-1])
+    #plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'ro', markersize=4)
 
-    print(im[0])
 
-    # fig = show_fits(im_shift(fits.open(im[0])[0].data, [100, 200], 15))
     # counter = 0
     # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
     #     plt.annotate(counter, xy=(x, y), xytext=(-10, 10),
