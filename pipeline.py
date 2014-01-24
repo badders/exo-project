@@ -112,12 +112,12 @@ def im_diff(im1, im2):
     """
     i1 = im1 - np.median(im1.flatten())
     i2 = im2 - np.median(im2.flatten())
-    return np.sqrt(abs(i1**2 - i2**2)).sum()
+    return np.sqrt(abs(i1 ** 2 - i2 ** 2)).sum()
 
 
 def im_shift(im, shiftx, shifty, angle=0):
     bg = np.median(im.flatten())
-    rotated = im # ndimage.rotate(im, angle, cval=bg, reshape=False)
+    rotated = im  # ndimage.rotate(im, angle, cval=bg, reshape=False)
     shifted = ndimage.shift(rotated, [shiftx, shifty], cval=bg)
     return shifted
 
@@ -125,7 +125,8 @@ def im_shift(im, shiftx, shifty, angle=0):
 def track_image_shift(im1, im2, guess=np.array([0., 0.])):
     err_func = lambda p: im_diff(im1, im_shift(im2, *p))
     echo = lambda xk: print('Parameters: {}'.format(xk))
-    out = optimize.fmin_powell(err_func, guess, xtol=0.01, callback=echo, full_output=1)
+    out = optimize.fmin_powell(
+        err_func, guess, xtol=0.01, callback=echo, full_output=1)
     params = out[0]
     return params
 
@@ -145,7 +146,7 @@ def align_images(pathname, force=False):
     guess = np.array([3., -3.])
     for i in range(len(images) - 1):
         f1 = ALIGNED_DEST + path.basename(images[i])
-        f2 = images[i+1]
+        f2 = images[i + 1]
         f = path.basename(f2)
         fn = ALIGNED_DEST + f
         if force or update_required(fn, f1) or update_required(fn, f2):
@@ -153,7 +154,8 @@ def align_images(pathname, force=False):
 
             hdulist1 = fits.open(f1)
             hdulist2 = fits.open(f2)
-            params = track_image_shift(hdulist1[0].data, hdulist2[0].data, guess)
+            params = track_image_shift(
+                hdulist1[0].data, hdulist2[0].data, guess)
 
             hdulist2[0].data = im_shift(hdulist2[0].data, *params)
             hdulist2.writeto(fn, clobber=True)
@@ -165,28 +167,39 @@ def align_images(pathname, force=False):
     return corrected_images
 
 
+def generate_apertures(im, sources, max_radius=30):
+    import math
+    from common.gaussian import fitgaussian2D
+    from collections import namedtuple
+    Aperture = namedtuple('Aperture', 'x y r br1, br2')
+
+    apertures = []
+    data = fits.open(im)[0].data
+    for s in sources:
+        y_min = math.floor(max(s.y - max_radius, 0))
+        y_max = math.floor(min(s.y + max_radius, data.shape[0] - 1))
+        x_min = math.ceil(max(s.x - max_radius, 0))
+        x_max = math.ceil(min(s.x + max_radius, data.shape[1] - 1))
+
+        if y_min < y_max - 1 and x_min < x_max - 1:
+            star = data[y_min:y_max, x_min:x_max]
+            params = fitgaussian2D(star)
+            r = max(params[3], params[4])
+            if 3 * r <= max_radius:
+                apertures.append(Aperture(s.x, s.y, 3 * r, 3*r + r, 3*r + 2*r))
+
+    return apertures
+
+
+def filter_overlapping(apertures):
+    return apertures
+
+def filter_saturated(im, apertures, threshold=0.9):
+    return apertures
+
+
 def do_photometry(data, star, cal_stars):
-    fluxes = []
-    errs = []
-    times = []
-    x0 = data[0][1]['X_IMAGE'][star]
-    y0 = data[0][1]['Y_IMAGE'][star]
-    aperture_r = sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'][star]
-
-    print(x0, y0)
-    for time, image in data:
-        flux = image['FLUX_BEST'][star]
-        err = image['FLUXERR_BEST'][star]
-        x1 = image['X_IMAGE'][star]
-        y1 = image['Y_IMAGE'][star]
-        print(x1, y1, np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2))
-
-        fluxes.append(flux)
-        errs.append(err)
-        times.append(time)
-
-    times = np.arange(len(fluxes))
-    return times, fluxes, errs
+    pass
 
 
 if __name__ == '__main__':
@@ -195,17 +208,23 @@ if __name__ == '__main__':
     flat = generate_flat(FLATS)
     # show_fits(DEBUG_IMAGE)
     # show_fits(flat)
-    correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
+    im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
     # show_header(im[0])
     #finder.test(im[0], snr=5)
-    im = align_images(CORRECTED_DEST + 'hat*.FIT')
-    sources = finder.run_sextractor(im, DATA_DEST=DATA_DEST)
+    #im = align_images(CORRECTED_DEST + 'hat*.FIT')
+    sources = finder.run_sextractor(im[0], DATA_DEST=DATA_DEST)
+
+    apertures = generate_apertures(im[0], sources)
+    apertures = filter_saturated(im[0], apertures)
 
     print(im[0], im[-1])
     fig = show_fits(im[0])
-    fig = show_fits(im[-1])
-    #plt.plot(sources[0][1]['X_IMAGE'] + 1, sources[0][1]['Y_IMAGE'] + 1, 'ro', markersize=4)
 
+    for ap in apertures:
+        fig.show_circles(ap.x, ap.y, ap.r)
+
+    #plt.plot(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE'], 'ro', markersize=4)
+    #fig = show_fits(im[-1])
 
     # counter = 0
     # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
@@ -219,7 +238,6 @@ if __name__ == '__main__':
     #                  sources[0][1]['Y_IMAGE'] + 1,
     #                  sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
     #                  edgecolor='y', linewidth=1)
-
     # times, fluxes, errs = do_photometry(sources, 91, [])
     # plt.figure()
     #plt.errorbar(times, fluxes, yerr=errs)
