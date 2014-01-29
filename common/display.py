@@ -4,7 +4,10 @@ from __future__ import (division, print_function, absolute_import,
 import aplpy
 import matplotlib.pyplot as plt
 from astropy.io import fits
-import Tkinter
+try:
+    import Tkinter as tkinter
+except:
+    import tkinter
 import numpy as np
 
 def show_fits(data, **kwargs):
@@ -20,16 +23,16 @@ def show_fits(data, **kwargs):
 
 
 def show_header(filename):
-    master = Tkinter.Tk()
-    scrollbar = Tkinter.Scrollbar(master, orient=Tkinter.VERTICAL)
-    listbox = Tkinter.Listbox(master, yscrollcommand=scrollbar.set)
+    master = tkinter.Tk()
+    scrollbar = tkinter.Scrollbar(master, orient=tkinter.VERTICAL)
+    listbox = tkinter.Listbox(master, yscrollcommand=scrollbar.set)
     scrollbar.config(command=listbox.yview)
-    scrollbar.pack(side=Tkinter.RIGHT, fill=Tkinter.Y)
-    listbox.pack(side=Tkinter.LEFT, fill=Tkinter.BOTH, expand=1)
+    scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
 
     h = fits.open(filename)[0].header
     for k in h:
         if k.strip() != '':
-            listbox.insert(Tkinter.END, '{}: {}'.format(k, h[k]))
+            listbox.insert(tkinter.END, '{}: {}'.format(k, h[k]))
 
-    Tkinter.mainloop()
+    tkinter.mainloop()
