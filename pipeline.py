@@ -194,13 +194,83 @@ def generate_apertures(im, sources, max_radius=30):
 def filter_overlapping(apertures):
     return apertures
 
-def filter_saturated(im, apertures, threshold=0.9):
+
+def filter_saturated(im, apertures, threshold=0.8):
+    max_value = threshold * fits.open(im)[0].header['DATAMAX']
+    print(max_value)
     return apertures
 
 
-def do_photometry(data, star, cal_stars):
-    pass
+def do_photometry(ims, aps, max_radius=50):
+    import math
+    phot_data = np.zeros((len(aps), len(ims)))
 
+    xs = []
+    ys = []
+
+    for i in range(len(ims)):
+        data = fits.open(ims[i])[0].data
+
+        for j in range(len(aps)):
+            ap = aps[j]
+
+            update_fail = False
+            if i > 0:
+                if np.isnan(phot_data[j][i-1]):
+                    update_fail = True
+                else:
+                    # Need to recenter aperture
+                    y_min = math.floor(max(ap.y - max_radius, 0))
+                    y_max = math.floor(min(ap.y + max_radius, data.shape[0] - 1))
+                    x_min = math.ceil(max(ap.x - max_radius, 0))
+                    x_max = math.ceil(min(ap.x + max_radius, data.shape[1] - 1))
+
+                    if y_min < y_max - 1 and x_min < x_max - 1:
+                        star = data[y_min:y_max, x_min:x_max]
+                        params = fitgaussian2D(star)
+
+                        print('{} Original: {}\t{}'.format(i, ap.x, ap.y))
+                        nx = params[1] + x_min
+                        ny = params[2] + y_min
+                        print('{} Updated:  {}\t{}'.format(i, nx, ny))
+
+                        if abs(nx - ap.x) > max_radius:
+                            nx = ap.x
+
+                        if abs(ny - ap.y) > max_radius:
+                            ny = ap.y
+
+                        xs.append(nx)
+                        ys.append(ny)
+
+                        ap = ap._replace(x=nx, y=ny)
+                        aps[j] = ap
+                    else:
+                        update_fail = True
+
+                    fig = show_fits(ims[i])
+                    fig.show_circles(ap.x, ap.y, ap.r)
+            if update_fail:
+                phot_data[j][i] = np.NaN
+            else:
+                y0 = int(math.floor(max(ap.y - ap.r, 0)))
+                y1 = int(math.floor(min(ap.y + ap.r, data.shape[0] - 1)))
+                x0 = int(math.ceil(max(ap.x - ap.r, 0)))
+                x1 = int(math.ceil(min(ap.x + ap.r, data.shape[1] - 1)))
+
+                flux = 0
+                for x in range(x0, x1 + 1):
+                    for y in range(y0, y1 + 1):
+                        if math.sqrt((ap.x - x)**2 + (ap.y - y)**2) <= ap.r:
+                            flux = flux + data[y][x]
+
+
+                phot_data[j][i] = flux
+
+    #plt.figure()
+    #plt.plot(xs)
+    #plt.plot(ys)
+    return phot_data
 
 if __name__ == '__main__':
     #finder.test(DEBUG_IMAGE, snr=3)
@@ -209,7 +279,7 @@ if __name__ == '__main__':
     # show_fits(DEBUG_IMAGE)
     # show_fits(flat)
     im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
-    # show_header(im[0])
+    #show_header(im[0])
     #finder.test(im[0], snr=5)
     #im = align_images(CORRECTED_DEST + 'hat*.FIT')
     sources = finder.run_sextractor(im[0], DATA_DEST=DATA_DEST)
@@ -217,11 +287,29 @@ if __name__ == '__main__':
     apertures = generate_apertures(im[0], sources)
     apertures = filter_saturated(im[0], apertures)
 
-    print(im[0], im[-1])
-    fig = show_fits(im[0])
+    # Hack to only use target apeture
+    apertures = [apertures[89]]
 
-    for ap in apertures:
+    im = im[:10]
+    fig = show_fits(im[0])
+    for i in range(len(apertures)):
+        ap = apertures[i]
+        print(ap)
         fig.show_circles(ap.x, ap.y, ap.r)
+        plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
+                     textcoords='offset points', ha='right', va='bottom',
+                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+                     arrowprops=dict(arrowstyle='->',
+                                     connectionstyle='arc3,rad=0'))
+
+    phot_data = do_photometry(im, apertures)
+    plt.figure()
+    plt.plot(phot_data[0])
+
+    fig = show_fits(im[-1])
+    ap = apertures[0]
+    print(ap)
+    fig.show_circles(ap.x, ap.y, ap.r)
 
     #plt.plot(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE'], 'ro', markersize=4)
     #fig = show_fits(im[-1])
