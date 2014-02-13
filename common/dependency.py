@@ -20,6 +20,9 @@ def update_required(dest, pathname):
     else:
         files = pathname
 
+    if files is None:
+        return False
+
     for fn in files:
         if os.stat(fn).st_mtime >= dest_time:
             return True

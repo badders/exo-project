@@ -14,6 +14,7 @@ import math
 from common.gaussian import gaussian2D,  fitgaussian2D
 from common.display import show_fits
 from astropy.table import Table
+from astropy.io import ascii
 from os import path
 import subprocess
 from collections import namedtuple

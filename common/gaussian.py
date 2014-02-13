@@ -20,6 +20,7 @@ def fitgaussian2D(data):
     the gaussian parameters of a 2D distribution found by a fit"""
     def errorfunction(p):
         return np.ravel(gaussian2D(*p)(*np.indices(data.shape)) - data)
-    params = data.max(), data.shape[0] / 2, data.shape[1] / 2, 5, 5, data.mean()
+    max_pos = np.unravel_index(data.argmax(), data.shape)
+    params = data.max(), max_pos[0], max_pos[1], 10, 10, np.median(data)
     p, success = optimize.leastsq(errorfunction, params)
     return p

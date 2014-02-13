@@ -14,12 +14,12 @@ from photometry import finder
 from scipy import ndimage
 from scipy import optimize
 
-FLATS = '/Users/tombadran/fits/test-data/flats/*.FIT'
-BIAS = '/Users/tombadran/fits/test-data/bias/*.FIT'
-IMAGES = '/Users/tombadran/fits/test-data/raw/*.FIT'
-CORRECTED_DEST = '/Users/tombadran/fits/test-data/corrected/'
-DATA_DEST = '/Users/tombadran/fits/test-data/corrected/data/'
-ALIGNED_DEST = '/Users/tombadran/fits/test-data/aligned/'
+FLATS = '/Users/tombadran/fits/chris-data/flats/*.FIT'
+BIAS = '/Users/tombadran/fits/chris-data/bias/*.FIT'
+IMAGES = '/Users/tombadran/fits/chris-data/raw/*.FIT'
+CORRECTED_DEST = '/Users/tombadran/fits/chris-data/corrected/'
+DATA_DEST = '/Users/tombadran/fits/chris-data/corrected/data/'
+ALIGNED_DEST = '/Users/tombadran/fits/chris-data/aligned/'
 
 
 def generate_bias(pathname, force=False):
@@ -83,8 +83,10 @@ def correct_images(pathname, dark_frame=None, flat_frame=None, force=False):
     images = glob.glob(pathname)
     fits_images = [(path.basename(f), fits.open(f)) for f in images]
 
-    dark = fits.open(dark_frame)[0].data
-    flat = fits.open(flat_frame)[0].data
+    if dark_frame is not None:
+        dark = fits.open(dark_frame)[0].data
+    if flat_frame is not None:
+        flat = fits.open(flat_frame)[0].data
 
     corrected_images = []
     for f, hdulist in fits_images:
@@ -201,7 +203,7 @@ def filter_saturated(im, apertures, threshold=0.8):
     return apertures
 
 
-def do_photometry(ims, aps, max_radius=50):
+def do_photometry(ims, aps, max_radius=60):
     import math
     phot_data = np.zeros((len(aps), len(ims)))
 
@@ -210,7 +212,7 @@ def do_photometry(ims, aps, max_radius=50):
 
     for i in range(len(ims)):
         data = fits.open(ims[i])[0].data
-
+        print(ims[i])
         for j in range(len(aps)):
             ap = aps[j]
 
@@ -229,10 +231,26 @@ def do_photometry(ims, aps, max_radius=50):
                         star = data[y_min:y_max, x_min:x_max]
                         params = fitgaussian2D(star)
 
+                        dx = params[2]
+                        dy = params[1]
+
                         print('{} Original: {}\t{}'.format(i, ap.x, ap.y))
-                        nx = params[1] + x_min
-                        ny = params[2] + y_min
+                        nx = dx + x_min
+                        ny = dy + y_min
                         print('{} Updated:  {}\t{}'.format(i, nx, ny))
+
+                        if i > 17:
+                            fig = plt.figure()
+                            plt.imshow(star)
+
+                            plt.plot(ap.x - x_min, ap.y - y_min, 'ko')
+                            plt.xlim((0, 100))
+                            plt.ylim((0, 100))
+
+                            plt.title('{} {}'.format(ap.x, ap.y))
+
+                            plt.plot(dx, dy, 'yx')
+                            plt.contour(gaussian2D(*params)(*np.indices(star.shape)))
 
                         if abs(nx - ap.x) > max_radius:
                             nx = ap.x
@@ -248,8 +266,8 @@ def do_photometry(ims, aps, max_radius=50):
                     else:
                         update_fail = True
 
-                    fig = show_fits(ims[i])
-                    fig.show_circles(ap.x, ap.y, ap.r)
+                    # fig = show_fits(ims[i])
+                    # fig.show_circles(ap.x, ap.y, ap.r)
             if update_fail:
                 phot_data[j][i] = np.NaN
             else:
@@ -267,18 +285,20 @@ def do_photometry(ims, aps, max_radius=50):
 
                 phot_data[j][i] = flux
 
-    #plt.figure()
-    #plt.plot(xs)
-    #plt.plot(ys)
+    plt.figure()
+    plt.plot(xs)
+    plt.plot(ys)
     return phot_data
 
 if __name__ == '__main__':
     #finder.test(DEBUG_IMAGE, snr=3)
-    bias = generate_bias(BIAS)
+    #bias = generate_bias(BIAS)
     flat = generate_flat(FLATS)
     # show_fits(DEBUG_IMAGE)
     # show_fits(flat)
-    im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
+    #im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
+    im = correct_images(IMAGES, flat_frame=flat)
+
     #show_header(im[0])
     #finder.test(im[0], snr=5)
     #im = align_images(CORRECTED_DEST + 'hat*.FIT')
@@ -287,14 +307,9 @@ if __name__ == '__main__':
     apertures = generate_apertures(im[0], sources)
     apertures = filter_saturated(im[0], apertures)
 
-    # Hack to only use target apeture
-    apertures = [apertures[89]]
-
-    im = im[:10]
     fig = show_fits(im[0])
     for i in range(len(apertures)):
         ap = apertures[i]
-        print(ap)
         fig.show_circles(ap.x, ap.y, ap.r)
         plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
                      textcoords='offset points', ha='right', va='bottom',
@@ -302,14 +317,22 @@ if __name__ == '__main__':
                      arrowprops=dict(arrowstyle='->',
                                      connectionstyle='arc3,rad=0'))
 
-    phot_data = do_photometry(im, apertures)
-    plt.figure()
-    plt.plot(phot_data[0])
+    # Hack to only use target apeture
+    # nb 73 is hat p 20
+    #apertures = [apertures[73], apertures[65], apertures[111], apertures[69]]
+    apertures = [apertures[73]]
+    print(apertures[0])
+    phot_data = do_photometry(im[:25], apertures)
+    # plt.figure()
+    # plt.plot(phot_data[0] / phot_data[1])
+    # plt.plot(phot_data[0] / phot_data[2])
+    # plt.plot(phot_data[0] / phot_data[3])
 
-    fig = show_fits(im[-1])
-    ap = apertures[0]
-    print(ap)
-    fig.show_circles(ap.x, ap.y, ap.r)
+
+    # fig = show_fits(im[-1])
+    # ap = apertures[0]
+    # print(ap)
+    # fig.show_circles(ap.x, ap.y, ap.r)
 
     #plt.plot(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE'], 'ro', markersize=4)
     #fig = show_fits(im[-1])
