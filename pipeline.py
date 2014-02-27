@@ -199,106 +199,119 @@ def filter_overlapping(apertures):
 
 def filter_saturated(im, apertures, threshold=0.8):
     max_value = threshold * fits.open(im)[0].header['DATAMAX']
-    print(max_value)
     return apertures
 
 
 def do_photometry(ims, aps, max_radius=60):
     import math
     phot_data = np.zeros((len(aps), len(ims)))
+    phot_err = np.zeros_like(phot_data)
 
-    xs = []
-    ys = []
+    xs = np.zeros((len(aps), len(ims)), dtype=np.float64)
+    ys = np.zeros_like(xs)
 
     for i in range(len(ims)):
         data = fits.open(ims[i])[0].data
-        print(ims[i])
+        print('Performing photometry on {}'.format(ims[i]))
         for j in range(len(aps)):
             ap = aps[j]
 
             update_fail = False
-            if i > 0:
-                if np.isnan(phot_data[j][i-1]):
-                    update_fail = True
-                else:
-                    # Need to recenter aperture
-                    y_min = math.floor(max(ap.y - max_radius, 0))
-                    y_max = math.floor(min(ap.y + max_radius, data.shape[0] - 1))
-                    x_min = math.ceil(max(ap.x - max_radius, 0))
-                    x_max = math.ceil(min(ap.x + max_radius, data.shape[1] - 1))
 
-                    if y_min < y_max - 1 and x_min < x_max - 1:
-                        star = data[y_min:y_max, x_min:x_max]
-                        params = fitgaussian2D(star)
+            # Need to recenter aperture
+            y_min = math.floor(max(ap.y - max_radius, 0))
+            y_max = math.floor(min(ap.y + max_radius, data.shape[0] - 1))
+            x_min = math.ceil(max(ap.x - max_radius, 0))
+            x_max = math.ceil(min(ap.x + max_radius, data.shape[1] - 1))
 
-                        dx = params[2]
-                        dy = params[1]
+            if y_min < y_max - 1 and x_min < x_max - 1:
+                star = data[y_min:y_max, x_min:x_max]
+                params = fitgaussian2D(star)
 
-                        print('{} Original: {}\t{}'.format(i, ap.x, ap.y))
-                        nx = dx + x_min
-                        ny = dy + y_min
-                        print('{} Updated:  {}\t{}'.format(i, nx, ny))
+                dx = params[2]
+                dy = params[1]
 
-                        if i > 17:
-                            fig = plt.figure()
-                            plt.imshow(star)
+                nx = dx + x_min
+                ny = dy + y_min
 
-                            plt.plot(ap.x - x_min, ap.y - y_min, 'ko')
-                            plt.xlim((0, 100))
-                            plt.ylim((0, 100))
+                if abs(nx - ap.x) > max_radius:
+                    nx = ap.x
 
-                            plt.title('{} {}'.format(ap.x, ap.y))
+                if abs(ny - ap.y) > max_radius:
+                    ny = ap.y
 
-                            plt.plot(dx, dy, 'yx')
-                            plt.contour(gaussian2D(*params)(*np.indices(star.shape)))
+                xs[j][i] = nx
+                ys[j][i] = ny
 
-                        if abs(nx - ap.x) > max_radius:
-                            nx = ap.x
+                ap = ap._replace(x=nx, y=ny)
+                aps[j] = ap
+            else:
+                update_fail = True
 
-                        if abs(ny - ap.y) > max_radius:
-                            ny = ap.y
-
-                        xs.append(nx)
-                        ys.append(ny)
-
-                        ap = ap._replace(x=nx, y=ny)
-                        aps[j] = ap
-                    else:
-                        update_fail = True
-
-                    # fig = show_fits(ims[i])
-                    # fig.show_circles(ap.x, ap.y, ap.r)
             if update_fail:
                 phot_data[j][i] = np.NaN
             else:
-                y0 = int(math.floor(max(ap.y - ap.r, 0)))
-                y1 = int(math.floor(min(ap.y + ap.r, data.shape[0] - 1)))
-                x0 = int(math.ceil(max(ap.x - ap.r, 0)))
-                x1 = int(math.ceil(min(ap.x + ap.r, data.shape[1] - 1)))
+                y0 = int(math.floor(max(ap.y - ap.br2, 0)))
+                y1 = int(math.floor(min(ap.y + ap.br2, data.shape[0] - 1)))
+                x0 = int(math.ceil(max(ap.x - ap.br2, 0)))
+                x1 = int(math.ceil(min(ap.x + ap.br2, data.shape[1] - 1)))
 
-                flux = 0
-                for x in range(x0, x1 + 1):
-                    for y in range(y0, y1 + 1):
-                        if math.sqrt((ap.x - x)**2 + (ap.y - y)**2) <= ap.r:
-                            flux = flux + data[y][x]
+                star = data[y0:y1, x0:x1]
 
+                my, mx = np.ogrid[y0:y1, x0:x1]
+
+                ap_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.r**2
+                br2_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.br2**2
+                br1_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.br1**2
+
+                br2_mask[br1_mask] = 0
+
+                bg = (star * br2_mask).sum() / br2_mask.sum()
+                star = star * ap_mask
+                flux = star.sum() - ap_mask.sum() * bg
+                flux_err = np.sqrt((np.sqrt(star)**2).sum())
 
                 phot_data[j][i] = flux
+                phot_err[j][i] = flux_err
 
-    plt.figure()
-    plt.plot(xs)
-    plt.plot(ys)
-    return phot_data
+    return phot_data, phot_err
+
+
+def bin_data(times, data, error, span=3):
+    new_times = []
+    new_vals = []
+    new_errs = []
+    for i in range(0, len(data) // span):
+        new_times.append(times[span * i:span * i + span].mean())
+        new_vals.append(data[span * i:span * i + span].mean())
+        new_errs.append(error[span * i:span * i + span].mean())
+    return np.array(new_times), np.array(new_vals), np.array(new_errs)
+
+
+def get_times(ims):
+    import datetime
+    times = []
+
+    for im in ims:
+        header = fits.open(im)[0].header
+        t = header['DATE-OBS']
+        times.append(datetime.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.000'))
+
+    for i in range(1, len(times)):
+        times[i] = (times[i] - times[0]).total_seconds()
+    times[0] = 0
+
+    return times
 
 if __name__ == '__main__':
     #finder.test(DEBUG_IMAGE, snr=3)
-    #bias = generate_bias(BIAS)
+    bias = generate_bias(BIAS)
     flat = generate_flat(FLATS)
     # show_fits(DEBUG_IMAGE)
     # show_fits(flat)
-    #im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
+    # im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
     im = correct_images(IMAGES, flat_frame=flat)
-
+    times = get_times(im)
     #show_header(im[0])
     #finder.test(im[0], snr=5)
     #im = align_images(CORRECTED_DEST + 'hat*.FIT')
@@ -307,24 +320,58 @@ if __name__ == '__main__':
     apertures = generate_apertures(im[0], sources)
     apertures = filter_saturated(im[0], apertures)
 
-    fig = show_fits(im[0])
-    for i in range(len(apertures)):
-        ap = apertures[i]
-        fig.show_circles(ap.x, ap.y, ap.r)
-        plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
-                     textcoords='offset points', ha='right', va='bottom',
-                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
-                     arrowprops=dict(arrowstyle='->',
-                                     connectionstyle='arc3,rad=0'))
+    # fig = show_fits(im[0])
+    # for i in range(len(apertures)):
+    #     ap = apertures[i]
+    #     fig.show_circles(ap.x, ap.y, ap.r)
+    #     plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
+    #                  textcoords='offset points', ha='right', va='bottom',
+    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+    #                  arrowprops=dict(arrowstyle='->',
+    #                                  connectionstyle='arc3,rad=0'))
 
     # Hack to only use target apeture
-    # nb 73 is hat p 20
-    #apertures = [apertures[73], apertures[65], apertures[111], apertures[69]]
-    apertures = [apertures[73]]
-    print(apertures[0])
-    phot_data = do_photometry(im[:25], apertures)
-    # plt.figure()
-    # plt.plot(phot_data[0] / phot_data[1])
+    # nb 75 is hat p 20
+    apertures = [apertures[75], apertures[70], apertures[65], apertures[49], apertures[67]]
+
+    phot_data, phot_err = do_photometry(im, apertures)
+    plt.figure()
+
+    star = phot_data[0]
+    err = phot_err[0]
+
+    ls = []
+    errs = []
+    for i in range(1, len(phot_data)):
+        l = star / phot_data[i]
+        err = phot_err[i] / phot_data[i]
+        ls.append(l / l.mean())
+        errs.append(err / l.mean())
+
+    star = np.zeros_like(star)
+    err = np.zeros_like(star)
+
+    for l in ls:
+        star += l
+
+    for e in errs:
+        err += e
+
+    err = err / len(errs)
+    star = star / len(ls)
+
+    times, star, err = bin_data(np.array(times), star, err)
+    #star = -2.5 * np.log10(star)
+
+    #star += 11.3 - star.mean()
+    # err = err / c1
+    #plt.plot(np.array(times) / 60, star, 'g.')
+
+    plt.ylabel('Flux')
+    plt.xlabel('Time / minutes')
+
+    plt.errorbar(times / 60, star, yerr=err, fmt='go')
+    plt.tight_layout()
     # plt.plot(phot_data[0] / phot_data[2])
     # plt.plot(phot_data[0] / phot_data[3])
 
@@ -353,3 +400,4 @@ if __name__ == '__main__':
     # plt.figure()
     #plt.errorbar(times, fluxes, yerr=errs)
     plt.show()
+
