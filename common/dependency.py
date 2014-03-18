@@ -9,13 +9,19 @@ from __future__ import (division, print_function, absolute_import,
 import os
 import glob
 
+try:
+    import builtins
+    str_type = builtins.str
+except ImportError:
+    str_type = basestring
+
 def update_required(dest, pathname):
     try:
         dest_time = os.stat(dest).st_mtime
     except OSError:
         return True
 
-    if isinstance(pathname, basestring):
+    if isinstance(pathname, str_type):
         files = glob.glob(pathname)
     else:
         files = pathname
