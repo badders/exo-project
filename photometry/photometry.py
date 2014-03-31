@@ -3,7 +3,7 @@ from __future__ import (division, print_function, absolute_import,
 import numpy as np
 from astropy.io import fits
 from common.gaussian import fitgaussian2D
-
+import photutils
 
 def do_photometry(ims, aps, max_radius=60):
     import math
@@ -16,6 +16,7 @@ def do_photometry(ims, aps, max_radius=60):
     for i in range(len(ims)):
         data = fits.open(ims[i])[0].data
         print('Performing photometry on {}'.format(ims[i]))
+
         for j in range(len(aps)):
             ap = aps[j]
 
@@ -48,33 +49,21 @@ def do_photometry(ims, aps, max_radius=60):
 
                 ap = ap._replace(x=nx, y=ny)
                 aps[j] = ap
-            else:
-                update_fail = True
 
-            if update_fail:
-                phot_data[j][i] = np.NaN
-            else:
-                y0 = int(math.floor(max(ap.y - ap.br2, 0)))
-                y1 = int(math.floor(min(ap.y + ap.br2, data.shape[0] - 1)))
-                x0 = int(math.ceil(max(ap.x - ap.br2, 0)))
-                x1 = int(math.ceil(min(ap.x + ap.br2, data.shape[1] - 1)))
+        axs = np.array([ap.x for ap in aps])
+        ays = np.array([ap.y for ap in aps])
+        rs = np.array([ap.r for ap in aps])
+        br1s = np.array([ap.br1 for ap in aps])
+        br2s = np.array([ap.br2 for ap in aps])
 
-                star = data[y0:y1, x0:x1]
+        rawflux, rawflux_err = photutils.aperture_circular(data, axs, ays, rs, error=np.sqrt(data))
 
-                my, mx = np.ogrid[y0:y1, x0:x1]
+        bkg = photutils.annulus_circular(data, axs, ays, br1s, br2s)
+        ap_areas = np.pi * rs ** 2
+        bkg_areas = np.pi * (br2s ** 2 - br1s ** 2)
+        flux = rawflux - bkg * ap_areas / bkg_areas
 
-                ap_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.r**2
-                br2_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.br2**2
-                br1_mask = (mx-ap.x)**2 + (my-ap.y)**2 <= ap.br1**2
-
-                br2_mask[br1_mask] = 0
-
-                bg = (star * br2_mask).sum() / br2_mask.sum()
-                star = star * ap_mask
-                flux = star.sum() - ap_mask.sum() * bg
-                flux_err = np.sqrt((np.sqrt(star)**2).sum())
-
-                phot_data[j][i] = flux
-                phot_err[j][i] = flux_err
+        phot_data[:,i] = flux
+        phot_err[:,i] = rawflux_err
 
     return phot_data, phot_err

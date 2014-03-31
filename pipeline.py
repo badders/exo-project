@@ -206,7 +206,7 @@ if __name__ == '__main__':
     # im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
     im = correct_images(IMAGES, flat_frame=flat)
     times = get_times(im)
-    #show_header(im[0])
+    # show_header(im[0])
     #finder.test(im[0], snr=5)
     #im = align_images(CORRECTED_DEST + 'hat*.FIT')
     sources = finder.run_sextractor(im[0], DATA_DEST=DATA_DEST)
@@ -224,7 +224,7 @@ if __name__ == '__main__':
                      arrowprops=dict(arrowstyle='->',
                                      connectionstyle='arc3,rad=0'))
 
-    # Hack to only use target apeture
+    # Only use target apeture
     # nb 75 is hat p 20
     apertures = [apertures[75], apertures[70], apertures[65], apertures[49], apertures[105]]
 
@@ -254,42 +254,12 @@ if __name__ == '__main__':
     err = err / len(errs)
     star = star / len(ls)
 
-    times, star, err = bin_data(np.array(times), star, err, span=5)
-    #star = -2.5 * np.log10(star)
-
-    #star += 11.3 - star.mean()
-    # err = err / c1
-    #plt.plot(np.array(times) / 60, star, 'g.')
+    times, star, err = bin_data(np.array(times), star, err, span=3)
 
     plt.ylabel('Flux')
     plt.xlabel('Time / minutes')
 
     plt.errorbar(times / 60, star, capsize=0, yerr=err, fmt='ko')
     plt.tight_layout()
-    # plt.plot(phot_data[0] / phot_data[2])
-    # plt.plot(phot_data[0] / phot_data[3])
 
-    # fig = show_fits(im[-1])
-    # ap = apertures[0]
-    # print(ap)
-    # fig.show_circles(ap.x, ap.y, ap.r)
-
-    #plt.plot(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE'], 'ro', markersize=4)
-    #fig = show_fits(im[-1])
-
-    # counter = 0
-    # for x, y in zip(sources[0][1]['X_IMAGE'], sources[0][1]['Y_IMAGE']):
-    #     plt.annotate(counter, xy=(x, y), xytext=(-10, 10),
-    #                  textcoords='offset points', ha='right', va='bottom',
-    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
-    #                  arrowprops=dict(arrowstyle='->',
-    #                                  connectionstyle='arc3,rad=0'))
-    #     counter += 1)
-    # fig.show_circles(sources[0][1]['X_IMAGE'] + 1,
-    #                  sources[0][1]['Y_IMAGE'] + 1,
-    #                  sources[0][1]['A_IMAGE'] * sources[0][1]['KRON_RADIUS'],
-    #                  edgecolor='y', linewidth=1)
-    # times, fluxes, errs = do_photometry(sources, 91, [])
-    # plt.figure()
-    #plt.errorbar(times, fluxes, yerr=errs)
     plt.show()
