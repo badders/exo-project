@@ -1,12 +1,22 @@
+# coding : utf-8
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
-import numpy as np
 from astropy.io import fits
 from common.gaussian import fitgaussian2D
+from common.dependency import update_required
+import numpy as np
 import photutils
+import math
+from common.display import *
 
-def do_photometry(ims, aps, max_radius=60):
-    import math
+def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, force=True):
+    if data_store is not None and err_store is not None and not force:
+        if not update_required(data_store, ims):
+            print('Restoring photometry data from files')
+            phot_data = np.loadtxt(data_store)
+            phot_err = np.loadtxt(err_store)
+            return phot_data, phot_err
+
     phot_data = np.zeros((len(aps), len(ims)))
     phot_err = np.zeros_like(phot_data)
 
@@ -30,6 +40,7 @@ def do_photometry(ims, aps, max_radius=60):
 
             if y_min < y_max - 1 and x_min < x_max - 1:
                 star = data[y_min:y_max, x_min:x_max]
+
                 params = fitgaussian2D(star)
 
                 dx = params[2]
@@ -65,5 +76,9 @@ def do_photometry(ims, aps, max_radius=60):
 
         phot_data[:,i] = flux
         phot_err[:,i] = rawflux_err
+
+    if data_store is not None and err_store is not None:
+        np.savetxt(data_store, phot_data)
+        np.savetxt(err_store, phot_err)
 
     return phot_data, phot_err

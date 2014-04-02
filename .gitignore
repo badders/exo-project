@@ -24,3 +24,13 @@
 *.toc
 
 *.cat
+
+.DS_Store
+
+*.nav
+
+*.snm
+
+*.fls
+
+*.lof

@@ -5,10 +5,12 @@ From Mandel & Agol 2002
 """
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
+from math import *
+
+from astropy import constants as c
 import numpy as np
 from uniform_disk import occultuniform
-from astropy import constants as c
-from math import *
+
 
 eps = np.finfo(float).eps
 zeroval = eps*1e6
@@ -45,15 +47,15 @@ def ellke(k):
 
     :INPUTS:
        k -- scalar or Numpy array
-      
+
     :OUTPUTS:
        ek, kk
 
     :NOTES:
        Adapted from the IDL function of the same name by J. Eastman (OSU).
-       """
+    """
     # 2011-04-19 09:15 IJC: Adapted from J. Eastman's IDL code.
-    
+
     m1 = 1. - k**2
     logm1 = np.log(m1)
 
@@ -69,8 +71,8 @@ def ellke(k):
 
     ee1 = 1. + m1*(a1 + m1*(a2 + m1*(a3 + m1*a4)))
     ee2 = m1 * (b1 + m1*(b2 + m1*(b3 + m1*b4))) * (-logm1)
-    
-    # Second kind:     
+
+    # Second kind:
     a0 = 1.38629436112
     a1 = 0.09666344259
     a2 = 0.03590092383
@@ -109,7 +111,7 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
 
     kc = np.sqrt(1. - k**2)
     p = n + 1.
-        
+
     # Initialize:
     m0 = np.array(1.)
     c = np.array(1.)
@@ -124,7 +126,7 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
         c = d/p + c
         g = e/p
         d = 2. * (f*g + d)
-        p = g + p; 
+        p = g + p;
         g = m0.copy()
         m0 = kc + m0
         if ((np.abs(1. - kc/g)) > tol).any():
@@ -150,7 +152,7 @@ def occultquad(z,p0, gamma, retall=False):
            gamma is used, then you're assuming linear limb-darkening.
 
     :OPTIONS:
-        retall -- bool.  
+        retall -- bool.
            If True, in addition to the light curve return the
            uniform-disk light curve, lambda^d, and eta^d parameters.
            Using these quantities allows for quicker model generation
@@ -183,16 +185,12 @@ def occultquad(z,p0, gamma, retall=False):
          F1, Funi, lambdad, etad = transit.occultquad(z, p, gammas, retall=True)
 
          gammas = [.35, .55]
-         F2 = 1. - ((1. - gammas[0] - 2.*gammas[1])*(1. - F1) + 
-            (gammas[0] + 2.*gammas[1])*(lambdad + 2./3.*(p > z)) + gammas[1]*etad) / 
+         F2 = 1. - ((1. - gammas[0] - 2.*gammas[1])*(1. - F1) +
+            (gammas[0] + 2.*gammas[1])*(lambdad + 2./3.*(p > z)) + gammas[1]*etad) /
             (1. - gammas[0]/3. - gammas[1]/6.)
          figure()
          plot(x, F1, x, F2)
          legend(['F1', 'F2'])
-         
-
-    :SEE ALSO:
-       :func:`t2z`, :func:`occultnonlin_small`, :func:`occultuniform`
 
     :NOTES:
        In writing this I relied heavily on the occultquad IDL routine
@@ -253,9 +251,9 @@ def occultquad(z,p0, gamma, retall=False):
     i09 = (p > 0) * (p < 1) * (z > 0) * (z < (0.5 - np.abs(p - 0.5)))
     i10 = (p > 0) * (p < 1) * (z == 0)
     i11 = (p > 1) * (z >= 0.) * (z < (p - 1.))
-    
+
     # Lambda^e is easy:
-    lambdae = 1. - occultuniform(z, p)  
+    lambdae = 1. - occultuniform(z, p)
 
     # Lambda^e and eta^d are more tricky:
     # Simple cases:
@@ -311,7 +309,7 @@ def occultquad(z,p0, gamma, retall=False):
     # Lambda_3:
     #ellipe, ellipk = ellke(0.5/ k)  # This is what the paper says
     ellipe, ellipk = ellke(0.5/ p)  # Corrected typo (1/2k -> 1/2p), according to J. Eastman
-    lambdad[i07] = 1./3. + (16.*p*(2*p2 - 1.)*ellipe - 
+    lambdad[i07] = 1./3. + (16.*p*(2*p2 - 1.)*ellipe -
                                 (1. - 4*p2)*(3. - 8*p2)*ellipk / p) / (9*np.pi)
 
 
@@ -338,12 +336,12 @@ def occultquad(z,p0, gamma, retall=False):
     etad[i02 + i07 + i08] = \
         (0.5/np.pi) * (kappa1 + kappa0*p2*(p2 + 2*z2[i02 + i07 + i08]) - \
                         0.25*(1. + 5*p2 + z2[i02 + i07 + i08]) * \
-                        np.sqrt((1. - a[i02 + i07 + i08]) * (b[i02 + i07 + i08] - 1.))) 
+                        np.sqrt((1. - a[i02 + i07 + i08]) * (b[i02 + i07 + i08] - 1.)))
 
 
     # Eta_2:
     etad[i03 + i04 + i05 + i09 + i10] = 0.5 * p2 * (p2 + 2. * z2[i03 + i04 + i05 + i09 + i10])
-    
+
 
     F = 1. - ((1. - c2) * lambdae + \
                   c2 * (lambdad + (2./3.) * (p > z).astype(float)) - \

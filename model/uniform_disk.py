@@ -43,7 +43,7 @@ def uniform_disk(r, rp, mp, rs, ms, n=1000, t_factor=0.05):
             # Full occlusion
             observed[i] = (rs**2 - rp**2) / (rs ** 2)
         elif (x + rp > -rs and x - rp < -rs) or (x + rp > rs and x - rp < rs):
-            # Partial occlusion 
+            # Partial occlusion
             observed[i] = (pi * rs**2 - overlap_area(rp, rs, abs(x))) / (pi * rs**2)
         else:
             observed[i] = 1
@@ -87,8 +87,6 @@ def occultuniform(z, p, complement=False):
 
        complement : bool
          If True, return (1 - occultuniform(z, p))
-
-    :SEE ALSO:  :func:`t2z`, :func:`occultquad`, :func:`occultnonlin_small`
     """
     z = np.abs(np.array(z,copy=True))
     fsecondary = np.zeros(z.shape,float)
@@ -133,7 +131,7 @@ def occultuniform(z, p, complement=False):
             fsecondary = p2
         elif z<=(p-1):
             fsecondary = 1.
-        
+
     if pneg:
         fsecondary *= -1
 

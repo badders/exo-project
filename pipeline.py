@@ -1,20 +1,23 @@
+# coding : utf-8
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 import glob
-
-import numpy as np
-from matplotlib import pyplot as plt
 from os import path
+
 from astropy.io import fits
-from common.display import show_fits, show_header
 from common.dependency import update_required
+from common.display import show_fits, show_header
 from common.gaussian import gaussian2D,  fitgaussian2D
+from matplotlib import pyplot as plt
+import numpy as np
 from photometry import finder
 from photometry.aperture import generate_apertures
 from photometry.photometry import do_photometry
-
 from scipy import ndimage
 from scipy import optimize
+
+import logging
+logging.basicConfig(level=logging.CRITICAL)
 
 FLATS = '/Users/tombadran/fits/chris-data/flats/*.FIT'
 BIAS = '/Users/tombadran/fits/chris-data/bias/*.FIT'
@@ -228,7 +231,7 @@ if __name__ == '__main__':
     # nb 75 is hat p 20
     apertures = [apertures[75], apertures[70], apertures[65], apertures[49], apertures[105]]
 
-    phot_data, phot_err = do_photometry(im, apertures)
+    phot_data, phot_err = do_photometry(im, apertures, data_store=DATA_DEST+'phot_data.txt', err_store=DATA_DEST+'phot_err.txt')
     plt.figure()
 
     star = phot_data[0]

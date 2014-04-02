@@ -1,9 +1,12 @@
+# coding : utf-8
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 from collections import namedtuple
 import math
-from common.gaussian import fitgaussian2D
+
 from astropy.io import fits
+from common.gaussian import fitgaussian2D
+
 
 Aperture = namedtuple('Aperture', 'x y r br1 br2')
 
