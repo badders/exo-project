@@ -2,14 +2,14 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 from astropy.io import fits
-from common.gaussian import fitgaussian2D
+from common.gaussian import fitgaussian2D, gaussian2D
 from common.dependency import update_required
 import numpy as np
 import photutils
 import math
-from common.display import *
 
-def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, force=True):
+
+def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, force=False):
     if data_store is not None and err_store is not None and not force:
         if not update_required(data_store, ims):
             print('Restoring photometry data from files')
@@ -24,7 +24,17 @@ def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, forc
     ys = np.zeros_like(xs)
 
     for i in range(len(ims)):
-        data = fits.open(ims[i])[0].data
+        source = fits.open(ims[i])
+        data = source[0].data
+        header = source[0].header
+
+        try:
+            egain = header['EGAIN']
+        except KeyError:
+            egain = 1.
+
+        data = data * egain
+
         print('Performing photometry on {}'.format(ims[i]))
 
         for j in range(len(aps)):
@@ -42,9 +52,31 @@ def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, forc
                 star = data[y_min:y_max, x_min:x_max]
 
                 params = fitgaussian2D(star)
-
                 dx = params[2]
                 dy = params[1]
+
+                if j == 2 and i == 1 and False:
+                    import matplotlib.pyplot as plt
+                    plt.figure()
+                    plt.imshow(star)
+                    xlim = plt.xlim()
+                    xlim = (xlim[0] + 15, xlim[1]-15)
+                    ylim = plt.ylim()
+                    ylim = (ylim[0] - 15, ylim[1]+15)
+                    plt.xlim(xlim)
+                    plt.ylim(ylim)
+                    plt.tight_layout()
+                    plt.figure()
+                    plt.imshow(star)
+                    plt.contour(gaussian2D(*params)(*np.indices(star.shape)), linewidths=2)
+                    plt.hlines(dx-1, *plt.ylim(), linewidths=2)
+                    plt.vlines(dy+1, *plt.xlim(), linewidths=2)
+                    plt.xlim(xlim)
+                    plt.ylim(ylim)
+                    plt.tight_layout()
+
+                    return phot_data, phot_err
+
 
                 nx = dx + x_min
                 ny = dy + y_min

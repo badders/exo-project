@@ -113,4 +113,22 @@
         \includegraphics[width=0.3\textwidth]{images/star_tracked.pdf}
     \end{center}
   \end{frame}
+  \begin{frame}
+  \frametitle{Automated Photometry}
+  \begin{itemize}
+  \item Use Gaussian data to determine aperture properties for each star - location is trivial, radius is estimated from FWHM
+  \item Estimate the local background around the apeture
+  \item Sum the flux in the aperture (less the background)
+  \item This also requires taking into account CCD characteristics
+  \item Also estimate the error (Poisson noise of flux and background)
+  \end{itemize}
+  With these aperture data it is then possible to generate a light curve.
+  \end{frame}
+  \begin{frame}
+  \frametitle{Actual Result!}
+  \framesubtitle{HAT-P-20 Observed from Cardiff}
+  \begin{center}
+        \includegraphics[width=0.9\textwidth]{images/chris_curve.pdf}
+  \end{center}
+  \end{frame}
 \end{document}

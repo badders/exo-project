@@ -9,7 +9,7 @@ from math import *
 
 from astropy import constants as c
 import numpy as np
-from uniform_disk import occultuniform
+from .uniform_disk import occultuniform
 
 
 eps = np.finfo(float).eps

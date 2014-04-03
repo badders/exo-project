@@ -13,6 +13,7 @@ import numpy as np
 from photometry import finder
 from photometry.aperture import generate_apertures
 from photometry.photometry import do_photometry
+from model.fitting import fit_quadlimb
 from scipy import ndimage
 from scipy import optimize
 
@@ -217,22 +218,21 @@ if __name__ == '__main__':
     apertures = generate_apertures(im[0], sources)
     #apertures = filter_saturated(im[0], apertures)
 
-    fig = show_fits(im[0])
-    for i in range(len(apertures)):
-        ap = apertures[i]
-        fig.show_circles(ap.x, ap.y, ap.r)
-        plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
-                     textcoords='offset points', ha='right', va='bottom',
-                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
-                     arrowprops=dict(arrowstyle='->',
-                                     connectionstyle='arc3,rad=0'))
+    # fig = show_fits(im[0])
+    # for i in range(len(apertures)):
+    #     ap = apertures[i]
+    #     fig.show_circles(ap.x, ap.y, ap.r)
+    #     plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
+    #                  textcoords='offset points', ha='right', va='bottom',
+    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+    #                  arrowprops=dict(arrowstyle='->',
+    #                                  connectionstyle='arc3,rad=0'))
 
     # Only use target apeture
     # nb 75 is hat p 20
     apertures = [apertures[75], apertures[70], apertures[65], apertures[49], apertures[105]]
 
     phot_data, phot_err = do_photometry(im, apertures, data_store=DATA_DEST+'phot_data.txt', err_store=DATA_DEST+'phot_err.txt')
-    plt.figure()
 
     star = phot_data[0]
     err = phot_err[0]
@@ -242,8 +242,9 @@ if __name__ == '__main__':
     for i in range(1, len(phot_data)):
         l = star / phot_data[i]
         err = phot_err[i] / phot_data[i]
-        ls.append(l / l.mean())
-        errs.append(err / l.mean())
+        flux_norm = np.percentile(l, 65)
+        ls.append(l / flux_norm)
+        errs.append(err / flux_norm)
 
     star = np.zeros_like(star)
     err = np.zeros_like(star)
@@ -257,12 +258,20 @@ if __name__ == '__main__':
     err = err / len(errs)
     star = star / len(ls)
 
-    times, star, err = bin_data(np.array(times), star, err, span=3)
+    times, star, err = bin_data(np.array(times), star, err, span=4)
+    model_flux, r_p = fit_quadlimb(times, star, err)
 
+    normalise_fac = model_flux[0]
+    star = star / normalise_fac
+    err = err / normalise_fac
+    model_flux = model_flux / normalise_fac
+
+    plt.figure(figsize=(8,6))
+    plt.plot(times / 60, model_flux)
     plt.ylabel('Flux')
     plt.xlabel('Time / minutes')
-
     plt.errorbar(times / 60, star, capsize=0, yerr=err, fmt='ko')
     plt.tight_layout()
+    plt.savefig('report/images/chris_curve.pdf')
 
     plt.show()
