@@ -17,8 +17,9 @@ def fit_uniform_disk(time, flux, flux_err):
 
 
 class ModelFit:
-    def __init__(self, res):
+    def __init__(self, res, flux):
         self.res = res
+        self.flux = flux
 
     def model(self, r_p, r_s, stretch, shift):
         z = np.linspace(0, r_s, num=int(self.res*stretch))
@@ -36,15 +37,19 @@ class ModelFit:
 
         return flux[:self.res] + shift
 
+    def error(self, params):
+        mdata = self.model(*params)
+        err = (mdata - self.flux)**2 / mdata
+        return err.sum()
+
 
 def fit_quadlimb(time, flux, flux_err):
     r_p = 0.14
     r_s = 1.4
     stretch = 0.5
     shift = 0
-    mf = ModelFit(len(time))
-    errfunc = lambda p: (abs(mf.model(*p) - flux)).sum()
-    params = fmin(errfunc, [r_p, r_s, stretch, shift])
+    mf = ModelFit(len(time), flux)
+    params = fmin(mf.error, [r_p, r_s, stretch, shift])
 
     print(params)
     f = mf.model(*params)
