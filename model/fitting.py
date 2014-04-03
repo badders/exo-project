@@ -6,6 +6,8 @@ from scipy.optimize import fmin
 from .uniform_disk import occultuniform
 from .quad_limb import occultquad
 import numpy as np
+from lmfit import minimize, Parameters, fit_report, report_errors
+
 
 def fit_uniform_disk(time, flux, flux_err):
     r_p = 0.13
@@ -17,13 +19,19 @@ def fit_uniform_disk(time, flux, flux_err):
 
 
 class ModelFit:
-    def __init__(self, res, flux):
+    def __init__(self, res, flux, err):
         self.res = res
         self.flux = flux
+        self.err = err
 
-    def model(self, r_p, r_s, stretch, shift):
+    def model(self, params):
+        r_p = params['r_p'].value
+        r_s = params['r_s'].value
+        stretch = params['stretch'].value
+        shift = params['shift'].value
+
         z = np.linspace(0, r_s, num=int(self.res*stretch))
-        gamma=[0.3, 0.7]
+        gamma=[.2, .8]
         f2 = occultquad(z, r_p, gamma)
         f1 = f2[::-1]
         flux = np.concatenate((f1, f2))
@@ -31,27 +39,27 @@ class ModelFit:
         if len(flux) < self.res:
             new_flux = np.zeros(self.res)
             new_flux[:len(flux)] = flux
-            for i in range(self.res, len(new_flux)):
-                new_flux[i] = flux[self.res]
+            for i in range(len(flux), len(new_flux)):
+                new_flux[i] = flux[-1]
             flux = new_flux
 
         return flux[:self.res] + shift
 
-    def error(self, params):
-        mdata = self.model(*params)
-        err = (mdata - self.flux)**2 / mdata
-        return err.sum()
+    def residual(self, params):
+        mdata = self.model(params)
+        return np.sqrt((mdata - self.flux)**2 / self.err**2)
 
 
 def fit_quadlimb(time, flux, flux_err):
-    r_p = 0.14
-    r_s = 1.4
-    stretch = 0.5
-    shift = 0
-    mf = ModelFit(len(time), flux)
-    params = fmin(mf.error, [r_p, r_s, stretch, shift])
+    params = Parameters()
+    params.add('r_p', value=0.12, min=0)
+    params.add('r_s', value=1.4, min=0)
+    params.add('stretch', value=0.5, min=0, max=1)
+    params.add('shift', value=0)
 
-    print(params)
-    f = mf.model(*params)
+    mf = ModelFit(len(time), flux, flux_err)
+    result = minimize(mf.residual, params)
+    report_errors(params)
+    f = mf.model(params)
 
-    return f, params[0]
+    return f, params['r_p'].value

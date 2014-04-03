@@ -5,6 +5,7 @@ import glob
 from os import path
 
 from astropy.io import fits
+from astropy.constants import R_sun, R_jup
 from common.dependency import update_required
 from common.display import show_fits, show_header
 from common.gaussian import gaussian2D,  fitgaussian2D
@@ -240,11 +241,15 @@ if __name__ == '__main__':
     ls = []
     errs = []
     for i in range(1, len(phot_data)):
-        l = star / phot_data[i]
-        err = phot_err[i] / phot_data[i]
+        cal = phot_data[i]
+        cal_err = phot_err[i]
+        l = star / cal
+        err = phot_err[i] / cal
         flux_norm = np.percentile(l, 65)
-        ls.append(l / flux_norm)
-        errs.append(err / flux_norm)
+        l = l / flux_norm
+        ls.append(l)
+        err = err / flux_norm
+        errs.append(err)
 
     star = np.zeros_like(star)
     err = np.zeros_like(star)
@@ -261,16 +266,21 @@ if __name__ == '__main__':
     times, star, err = bin_data(np.array(times), star, err, span=4)
     model_flux, r_p = fit_quadlimb(times, star, err)
 
+    # Convert r_p to Jovian radii
+    r_hat = 0.694
+    r = (r_p * R_sun * r_hat) / R_jup
+
     normalise_fac = model_flux[0]
     star = star / normalise_fac
     err = err / normalise_fac
     model_flux = model_flux / normalise_fac
 
     plt.figure(figsize=(8,6))
-    plt.plot(times / 60, model_flux)
-    plt.ylabel('Flux')
+    plt.plot(times / 60, model_flux, label='R={:.2f} RJ'.format(r))
+    plt.ylabel('Relative Flux')
     plt.xlabel('Time / minutes')
-    plt.errorbar(times / 60, star, capsize=0, yerr=err, fmt='ko')
+    plt.errorbar(times / 60, star, capsize=0, yerr=err, fmt='ko', label='Data')
+    plt.legend(loc=2)
     plt.tight_layout()
     plt.savefig('report/images/chris_curve.pdf')
 
