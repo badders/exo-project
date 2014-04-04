@@ -15,9 +15,7 @@ from photometry import finder
 from photometry.aperture import generate_apertures
 from photometry.photometry import do_photometry
 from model.fitting import fit_quadlimb
-from scipy import ndimage
-from scipy import optimize
-
+from scipy import ndimage, optimize, interpolate
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -263,8 +261,8 @@ if __name__ == '__main__':
     err = err / len(errs)
     star = star / len(ls)
 
-    times, star, err = bin_data(np.array(times), star, err, span=4)
-    model_flux, r_p = fit_quadlimb(times, star, err)
+    times, star, err = bin_data(np.array(times), star, err, span=5)
+    model_flux, r_p, r_p_err = fit_quadlimb(times, star, err)
 
     # Convert r_p to Jovian radii
     r_hat = 0.694
@@ -276,10 +274,22 @@ if __name__ == '__main__':
     model_flux = model_flux / normalise_fac
 
     plt.figure(figsize=(8,6))
-    plt.plot(times / 60, model_flux, label='R={:.2f} RJ'.format(r))
     plt.ylabel('Relative Flux')
     plt.xlabel('Time / minutes')
     plt.errorbar(times / 60, star, capsize=0, yerr=err, fmt='ko', label='Data')
+
+    times2 = np.zeros(len(times) + 2)
+    times2[1:-1] = times / 60
+    times2[0] = 0
+    times2[-1] = plt.xlim()[1]
+
+    mflux = np.zeros(len(model_flux) + 2)
+    mflux[0] = model_flux[0]
+    mflux[1:-1] = model_flux
+    mflux[-1] = model_flux[-1]
+
+    plt.plot(times2, mflux, 'b-', label='R={:.2f} RJ'.format(r))
+
     plt.legend(loc=2)
     plt.tight_layout()
     plt.savefig('report/images/chris_curve.pdf')

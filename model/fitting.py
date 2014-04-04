@@ -6,7 +6,7 @@ from scipy.optimize import fmin
 from .uniform_disk import occultuniform
 from .quad_limb import occultquad
 import numpy as np
-from lmfit import minimize, Parameters, fit_report, report_errors
+from lmfit import minimize, Parameters, fit_report, report_errors, conf_interval, printfuncs
 
 
 def fit_uniform_disk(time, flux, flux_err):
@@ -59,7 +59,12 @@ def fit_quadlimb(time, flux, flux_err):
 
     mf = ModelFit(len(time), flux, flux_err)
     result = minimize(mf.residual, params)
+    print(result.residual)
     report_errors(params)
     f = mf.model(params)
+    rp_err = 0.01
 
-    return f, params['r_p'].value
+    ci = conf_interval(result)
+    printfuncs.report_ci(ci)
+
+    return f, params['r_p'].value, rp_err

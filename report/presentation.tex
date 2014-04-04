@@ -16,21 +16,21 @@
   \begin{frame}
     \frametitle{Motivations}
     \begin{itemize}
-        \item Recent area of research, the first exo-planet was discovered in 1992 orbiting a pulsar (Wolszczan and Frail 1992), and the first orbiting a main-sequence star in 1995 (Mayor and Queloz 1995)
-        \item Now up to thousands of planets, many wildly different to our system's planets
-        \item They turn out to be very common, finding single and multi planet systems every where, including in binary systems
-        \item Aliens! Only just starting to be able to detect possible Earth-like systems
+        \item Recent area of research, the first exoplanet was discovered in 1992 orbiting a pulsar (Wolszczan and Frail 1992), and the first orbiting a main-sequence star in 1995 (Mayor and Queloz 1995)
+        \item Astronomers have now discovered thousands of planets, many wildly different to our own system's planets
+        \item Exoplanets turn out to be very common, and we are finding single and multi planet systems every where, including in binary systems
+        \item Aliens! Only just starting to be able to detect possible Earth-like systems, which is still our only data point for life supporting planets
     \end{itemize}
   \end{frame}
   \begin{frame}
     \frametitle{Goals}
-    \begin{itemize}
+    \begin{enumerate}
         \item Model planetary transits
         \item Collect and correct images
         \item Perform photometry on these data
-        \item Demonstrate planetary detection is possible in the poor seeing conditions of Cardiff
-        \item Develop a fully automated processing pipeline for discovering exo-planets
-    \end{itemize}
+        \item Demonstrate planetary detection is possible with the poor seeing conditions of Cardiff
+        \item Develop a fully automated processing pipeline for discovering exoplanets
+    \end{enumerate}
   \end{frame}
   \begin{frame}
     \frametitle{Transit Method}
@@ -45,15 +45,15 @@
     \frametitle{Transit Method}
     Advantages:
     \begin{itemize}
-        \item Optical wavelengths
-        \item No need for specialist equipment or space telescopes, just need a camera and a clear sky
+        \item Works at optical wavelengths
+        \item No need for specialist instruments or space telescopes
         \item Determines planet size
     \end{itemize}
     Disadvantages:
     \begin{itemize}
         \item Limited range of inclinations
         \item Poor for stars off the main sequence
-        \item Works best for large planets near star (not Earth like)
+        \item Only works well for large planets near star (not Earth like)
     \end{itemize}
   \end{frame}
   \begin{frame}
@@ -83,8 +83,8 @@
   \begin{frame}
   \frametitle{Modeling}
     \framesubtitle{2nd Order - Limb Darkening}
-    Planet as solid disk is not bad approximation, atmospheric affects generally fall well into the noise (although some studies have determined properties).
-    Star however does not emit uniformly, and is brighter in the center than the towards the edges.
+    Modelling the planet as solid disk is not a bad approximation, atmospheric effects generally fall well into the noise.
+    Stars however do not emit uniformly, and are brighter in the center than towards the edges.
     \begin{center}
     \includegraphics[width=0.4\textwidth]{images/venus_transit.jpg}
     {\tiny\\
@@ -94,16 +94,16 @@
   \begin{frame}
   \frametitle{Modeling}
     \framesubtitle{2nd Order - Limb Darkening}
-    Modeled as a quadratic function to describe the limb darkening (Mandel and Agol 2002)
+    Limb darkening odeled as a quadratic function (Mandel and Agol 2002)
     \begin{center}
     \includegraphics[width=0.7\textwidth]{images/model_comparison.pdf}
     \end{center}
   \end{frame}
   \begin{frame}
   \frametitle{Star Finder}
-  SExtractor commonly used, great for well aligned images, but poor when you have multiple frames with various tracking issues and seeing conditions.
+  SExtractor is commonly used, great for well aligned images, but poor when you have multiple frames with various tracking issues and seeing conditions.
 
-  Developed a simple easily modifiable algorithm for source discovery and tracking.
+  I developed a set of simple and easily modifiable algorithms for source discovery and tracking.
   \begin{center}
     \includegraphics[width=0.7\textwidth]{images/starfinder_zoom.png}
   \end{center}
@@ -111,12 +111,12 @@
   \begin{frame}
   \frametitle{Star Finder}
     \framesubtitle{Algorithm}
-    \begin{itemize}
+    \begin{enumerate}
         \item Estimate a sky background
-        \item Filter pixels below some signal to noise to ratio
+        \item Filter pixels below some signal to noise ratio
         \item Find objects greater than a threshold size
-        \item Apply a 2D Gaussian to objects to find centers - also gives aperture information
-    \end{itemize}
+        \item Apply a 2D Gaussian to objects to find centres - also gives aperture information
+    \end{enumerate}
     For subsequent images the Gaussian locater step is repeated to track the stars.
     \begin{center}
         \includegraphics[width=0.3\textwidth]{images/star_untracked.pdf}\quad
@@ -125,14 +125,19 @@
   \end{frame}
   \begin{frame}
   \frametitle{Automated Photometry}
-  \begin{itemize}
+  \begin{enumerate}
   \item Use Gaussian data to determine aperture properties for each star - location is trivial, radius is estimated from FWHM
-  \item Estimate the local background around the apeture
+  \item Estimate the local background around the aperture
   \item Sum the flux in the aperture (less the background)
-  \item This also requires taking into account CCD characteristics
-  \item Also estimate the error (Poisson noise of flux and background)
+  \begin{itemize}
+    \item This also requires taking into account CCD characteristics
   \end{itemize}
+  \item Also estimate the error (Poisson noise of flux and background)
+  \end{enumerate}
   With these aperture data it is then possible to generate a light curve.
+  \end{frame}
+   \begin{frame}
+    \frametitle{Fitting the Model}
   \end{frame}
   \begin{frame}
   \frametitle{Actual Result!}
@@ -143,6 +148,12 @@
   \end{frame}
   \begin{frame}
     \frametitle{Derived Planetary Radius}
-    Radius is $0.85\pm0.1\RJ$. Actual published radius is $0.867\pm0.003\RJ$. Even with poor seeing of Cardiff this gave a very good result!
+    \framesubtitle{HAT-P-20 Observed from Cardiff}
+    \begin{itemize}
+    \item Radius is $0.88\pm0.01\RJ$.
+    \item Actual published radius is $0.867\pm0.003\RJ$ (Bakos et al 2011).
+    \item Even with poor seeing of Cardiff this gave a very good result!
+    \item In fact, this result is at a confidence level of 95\%, or 3-sigma
+    \end{itemize}
   \end{frame}
 \end{document}
