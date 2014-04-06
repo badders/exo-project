@@ -22,6 +22,8 @@ logging.basicConfig(level=logging.CRITICAL)
 FLATS = '/Users/tombadran/fits/chris-data/flats/*.FIT'
 BIAS = '/Users/tombadran/fits/chris-data/bias/*.FIT'
 IMAGES = '/Users/tombadran/fits/chris-data/raw/*.FIT'
+IMAGES2 = '/Users/tombadran/fits/XO2b-2012-01-18/fits/*.fits'
+
 CORRECTED_DEST = '/Users/tombadran/fits/chris-data/corrected/'
 DATA_DEST = '/Users/tombadran/fits/chris-data/corrected/data/'
 ALIGNED_DEST = '/Users/tombadran/fits/chris-data/aligned/'
@@ -186,13 +188,13 @@ def bin_data(times, data, error, span=3):
 
 
 def get_times(ims):
-    import datetime
+    from astropy.time import Time
     times = []
 
     for im in ims:
         header = fits.open(im)[0].header
-        t = header['DATE-OBS']
-        times.append(datetime.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.000'))
+        t = Time(header['DATE-OBS'], scale='utc').datetime
+        times.append(t)
 
     for i in range(1, len(times)):
         times[i] = (times[i] - times[0]).total_seconds()
@@ -208,7 +210,9 @@ if __name__ == '__main__':
     # show_fits(flat)
     # im = correct_images(IMAGES, dark_frame=bias, flat_frame=flat)
     im = correct_images(IMAGES, flat_frame=flat)
+    im2 = correct_images(IMAGES2)
     times = get_times(im)
+    times2 = get_times(im2)
     # show_header(im[0])
     #finder.test(im[0], snr=5)
     #im = align_images(CORRECTED_DEST + 'hat*.FIT')
