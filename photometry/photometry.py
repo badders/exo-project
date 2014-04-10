@@ -106,6 +106,7 @@ def do_photometry(ims, aps, max_radius=60, data_store=None, err_store=None, forc
         bkg_areas = np.pi * (br2s ** 2 - br1s ** 2)
         flux = rawflux - bkg * ap_areas / bkg_areas
 
+        flux[flux < 0] = np.NaN
         phot_data[:,i] = flux
         phot_err[:,i] = rawflux_err
 

@@ -138,6 +138,16 @@
   \end{frame}
    \begin{frame}
     \frametitle{Fitting the Model}
+    \begin{itemize}
+      \item Fit to Quadratic Limb Darkening Model (Mandel and Agol 2002)
+      \item Chi-Squared fit to data with error scaling
+    \end{itemize}
+    \[ \chi^2 = \sum \frac{(\text{observed}-\text{expected})^2}{\text{expected} \times \text{error}} \]
+    \begin{itemize}
+      \item Minimize $\chi$
+      \item Parameterise radius of planet, extra parameters to scale starting point of transit
+      \item Implemented using the excellent \em{lmfit} library
+    \end{itemize}
   \end{frame}
   \begin{frame}
   \frametitle{Actual Result!}
@@ -150,10 +160,9 @@
     \frametitle{Derived Planetary Radius}
     \framesubtitle{HAT-P-20 Observed from Cardiff}
     \begin{itemize}
-    \item Radius is $0.88\pm0.01\RJ$.
-    \item Actual published radius is $0.867\pm0.003\RJ$ (Bakos et al 2011).
+    \item Derived radius is $0.88\pm0.01\RJ$.
+    \item Actual published radius is $0.867\pm0.003\RJ$ (Bakos et al. 2011).
     \item Even with poor seeing of Cardiff this gave a very good result!
-    \item In fact, this result is at a confidence level of 95\%, or 3-sigma
     \end{itemize}
   \end{frame}
 \end{document}

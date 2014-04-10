@@ -9,7 +9,9 @@ from common.gaussian import fitgaussian2D
 
 
 Aperture = namedtuple('Aperture', 'x y r br1 br2')
-
+AP_MIN = 5
+AP_MIN_B1 = 6
+AP_MIN_B2 = 8
 
 def filter_overlapping(apertures):
     return apertures
@@ -33,7 +35,10 @@ def generate_apertures(im, sources, max_radius=30):
             star = data[y_min:y_max, x_min:x_max]
             params = fitgaussian2D(star)
             r = max(params[3], params[4])
-            if 3 * r <= max_radius:
+            if 2 * r <= max_radius and 2*r > 0:
                 apertures.append(Aperture(s.x, s.y, 3 * r, 3*r + r, 3*r + 2*r))
+            else:
+                apertures.append(Aperture(s.x, s.y, AP_MIN, AP_MIN_B1, AP_MIN_B2))
+
 
     return apertures

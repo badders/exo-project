@@ -50,11 +50,11 @@ class ModelFit:
         return np.sqrt((mdata - self.flux)**2 / self.err**2)
 
 
-def fit_quadlimb(time, flux, flux_err):
+def fit_quadlimb(time, flux, flux_err, stretch=0.5):
     params = Parameters()
     params.add('r_p', value=0.12, min=0)
     params.add('r_s', value=1.4, min=0)
-    params.add('stretch', value=0.5, min=0, max=1)
+    params.add('stretch', value=stretch, min=0, max=1)
     params.add('shift', value=0)
 
     mf = ModelFit(len(time), flux, flux_err)
