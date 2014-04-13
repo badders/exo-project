@@ -43,7 +43,7 @@ class ModelFit:
                 new_flux[i] = flux[-1]
             flux = new_flux
 
-        return flux[:self.res] + shift
+        return flux[:self.res] * shift
 
     def residual(self, params):
         mdata = self.model(params)
@@ -55,16 +55,15 @@ def fit_quadlimb(time, flux, flux_err, stretch=0.5):
     params.add('r_p', value=0.12, min=0)
     params.add('r_s', value=1.4, min=0)
     params.add('stretch', value=stretch, min=0, max=1)
-    params.add('shift', value=0)
+    params.add('shift', value=1, min=0.8, max=1.2)
 
     mf = ModelFit(len(time), flux, flux_err)
     result = minimize(mf.residual, params)
-    print(result.residual)
-    report_errors(params)
-    f = mf.model(params)
-    rp_err = 0.01
 
-    ci = conf_interval(result)
-    printfuncs.report_ci(ci)
+    f = mf.model(params)
+    rp_err = 0.02
+
+    # ci = conf_interval(result)
+    # printfuncs.report_ci(ci)
 
     return f, params['r_p'].value, rp_err

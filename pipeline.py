@@ -206,65 +206,72 @@ if __name__ == '__main__':
     bias = generate_bias(BIAS)
     flat = generate_flat(FLATS)
     im = correct_images(IMAGES, flat_frame=flat)
-    im2 = correct_images(IMAGES2)
+    # im2 = correct_images(IMAGES2)
     times = get_times(im)
-    times2x = get_times(im2)
+    # times2x = get_times(im2)
     sources = finder.run_sextractor(im[0], DATA_DEST=DATA_DEST)
-    sources2 = finder.run_sextractor(im2[0], DATA_DEST=DATA_DEST)
+    # sources2 = finder.run_sextractor(im2[0], DATA_DEST=DATA_DEST)
 
     apertures = generate_apertures(im[0], sources)
-    apertures2 = generate_apertures(im2[1], sources2, max_radius=8)
+    # apertures2 = generate_apertures(im2[1], sources2, max_radius=8)
 
-    fig = show_fits(im2[0])
-    for i in range(len(apertures2)):
-        ap = apertures2[i]
-        fig.show_circles(ap.x, ap.y, ap.r)
-        plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
-                     textcoords='offset points', ha='right', va='bottom',
-                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
-                     arrowprops=dict(arrowstyle='->',
-                                     connectionstyle='arc3,rad=0'))
+    # fig = show_fits(im2[0])
+    # for i in range(len(apertures2)):
+    #     ap = apertures2[i]
+    #     fig.show_circles(ap.x, ap.y, ap.r)
+    #     plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
+    #                  textcoords='offset points', ha='right', va='bottom',
+    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+    #                  arrowprops=dict(arrowstyle='->',
+    #                                  connectionstyle='arc3,rad=0'))
 
     # Only use target apeture
     # nb 75 is hat p 20
     apertures = [apertures[75], apertures[70], apertures[65], apertures[49], apertures[105]]
-    apertures2 = [apertures2[20], apertures2[15], apertures2[13]]
+    # apertures2 = [apertures2[20], apertures2[15], apertures2[13]]
 
     phot_data, phot_err = do_photometry(im, apertures, data_store=DATA_DEST+'phot_data.txt', err_store=DATA_DEST+'phot_err.txt', max_radius=20)
-    phot_data2, phot_err2 = do_photometry(im2, apertures2, data_store=DATA_DEST+'phot_data2.txt', err_store=DATA_DEST+'phot_err2.txt', max_radius=8, force=False)
+    # phot_data2, phot_err2 = do_photometry(im2, apertures2, data_store=DATA_DEST+'phot_data2.txt', err_store=DATA_DEST+'phot_err2.txt', max_radius=8, force=False)
 
-    plt.figure()
-    plt.plot(phot_data2[0])
-    plt.plot(phot_data2[1])
-    plt.plot(phot_data2[2])
+    # plt.figure()
+    # plt.plot(phot_data2[0])
+    # plt.plot(phot_data2[1])
+    # plt.plot(phot_data2[2])
 
-    fig = show_fits(im2[-1])
-    for i in range(len(apertures2)):
-        ap = apertures2[i]
-        fig.show_circles(ap.x, ap.y, ap.r)
-        plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
-                     textcoords='offset points', ha='right', va='bottom',
-                     bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
-                     arrowprops=dict(arrowstyle='->',
-                                     connectionstyle='arc3,rad=0'))
+    # fig = show_fits(im2[-1])
+    # for i in range(len(apertures2)):
+    #     ap = apertures2[i]
+    #     fig.show_circles(ap.x, ap.y, ap.r)
+    #     plt.annotate(i, xy=(ap.x, ap.y), xytext=(-10, 10),
+    #                  textcoords='offset points', ha='right', va='bottom',
+    #                  bbox=dict(boxstyle='round,pad=0.5', fc='y', alpha=0.2),
+    #                  arrowprops=dict(arrowstyle='->',
+    #                                  connectionstyle='arc3,rad=0'))
     star = phot_data[0]
-    err = phot_err[0]
+    star_err = phot_err[0]
 
     ls = []
     errs = []
+    seeing_errs = []
     for i in range(1, len(phot_data)):
         cal = phot_data[i]
         cal_err = phot_err[i]
         l = star / cal
         err = cal_err / cal
-        flux_norm = np.percentile(l, 65)
+        flux_norm = np.percentile(l, 50)
         l = l / flux_norm
         ls.append(l)
         err = err / flux_norm
         errs.append(err)
 
+        x = np.arange(len(cal))
+        fit = np.polyfit(x, cal, 1)
+        diffs = np.abs(np.poly1d(fit)(x) - cal)
+        seeing_errs.append(diffs.mean() / cal)
+
     star = np.zeros_like(star)
     err = np.zeros_like(star)
+    seeing_err = np.array(seeing_errs).mean()
 
     for l in ls:
         star += l
@@ -272,7 +279,7 @@ if __name__ == '__main__':
     for e in errs:
         err += e
 
-    err = err / len(errs)
+    err = err / len(errs) + seeing_err
     star = star / len(ls)
 
     times, star, err = bin_data(np.array(times), star, err, span=5)
@@ -281,6 +288,7 @@ if __name__ == '__main__':
     # Convert r_p to Jovian radii
     r_hat = 0.694
     r = (r_p * R_sun * r_hat) / R_jup
+    r_err = (r_p_err * R_sun * r_hat) / R_jup
 
     normalise_fac = model_flux[0]
     star = star / normalise_fac
@@ -302,69 +310,67 @@ if __name__ == '__main__':
     mflux[1:-1] = model_flux
     mflux[-1] = model_flux[-1]
 
-    plt.plot(times2, mflux, 'b-', label='R={:.2f} RJ'.format(r))
+    plt.plot(times2, mflux, 'b-', label=r'$\mathrm{{R}}=({:.2f}\pm{:.2f})\mathrm{{R_J}}$'.format(r, r_err))
 
     plt.legend(loc=2)
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.savefig('report/images/chris_curve.pdf')
 
-    star = phot_data2[0]
-    err = phot_err2[0]
+    # star = phot_data2[0]
+    # err = phot_err2[0]
 
-    ls = []
-    errs = []
-    for i in range(1, len(phot_data2)):
-        cal = phot_data2[i]
-        cal_err = phot_err2[i]
-        l = star / cal
-        err = cal_err / cal
-        flux_norm = np.percentile(l, 65)
-        l = l / flux_norm
-        ls.append(l)
-        err = err / flux_norm
-        errs.append(err)
+    # ls = []
+    # errs = []
+    # for i in range(1, len(phot_data2)):
+    #     cal = phot_data2[i]
+    #     cal_err = phot_err2[i]
+    #     l = star / cal
+    #     err = cal_err / cal
+    #     flux_norm = np.percentile(l, 65)
+    #     l = l / flux_norm
+    #     ls.append(l)
+    #     err = err / flux_norm
+    #     errs.append(err)
 
-    star = np.zeros_like(star)
-    err = np.zeros_like(star)
+    # star = np.zeros_like(star)
+    # err = np.zeros_like(star)
 
-    for l in ls:
-        star += l
+    # for l in ls:
+    #     star += l
 
-    for e in errs:
-        err += e
+    # for e in errs:
+    #     err += e
 
-    err = err / len(errs)
-    star = star / len(ls)
+    # err = err / len(errs)
+    # star = star / len(ls)
 
-    star[star > 1.1] = np.NaN
-    star[star < 0.9] = np.NaN
-    times2x, star, err = bin_data(np.array(times2x), star, err, span=3)
+    # star[star > 1.1] = np.NaN
+    # star[star < 0.9] = np.NaN
+    # times2x, star, err = bin_data(np.array(times2x), star, err, span=3)
 
-    plt.figure()
-    plt.plot(np.array(times2x) / 60, star, 'kx')
+    # plt.figure()
+    # plt.plot(np.array(times2x) / 60, star, 'kx')
 
-    #model_flux, r_p, r_p_err = fit_quadlimb(times2x, star, err)
+    # #model_flux, r_p, r_p_err = fit_quadlimb(times2x, star, err)
 
-    normalise_fac = model_flux[0]
-    star = star / normalise_fac
-    err = err / normalise_fac
-    model_flux = model_flux / normalise_fac
+    # normalise_fac = model_flux[0]
+    # star = star / normalise_fac
+    # err = err / normalise_fac
+    # model_flux = model_flux / normalise_fac
 
-    plt.ylabel('Relative Flux')
-    plt.xlabel('Time / minutes')
+    # plt.ylabel('Relative Flux')
+    # plt.xlabel('Time / minutes')
 
-    # times2 = np.zeros(len(times2x) + 2)
-    # times2[1:-1] = np.array(times2x) / 60
-    # times2[0] = 0
-    # times2[-1] = plt.xlim()[1]
+    # # times2 = np.zeros(len(times2x) + 2)
+    # # times2[1:-1] = np.array(times2x) / 60
+    # # times2[0] = 0
+    # # times2[-1] = plt.xlim()[1]
 
-    # mflux = np.zeros(len(model_flux) + 2)
-    # mflux[0] = model_flux[0]
-    # mflux[1:-1] = model_flux
-    # mflux[-1] = model_flux[-1]
+    # # mflux = np.zeros(len(model_flux) + 2)
+    # # mflux[0] = model_flux[0]
+    # # mflux[1:-1] = model_flux
+    # # mflux[-1] = model_flux[-1]
 
-    # plt.plot(times2, mflux, 'b-')
-
-    plt.tight_layout()
+    # # plt.plot(times2, mflux, 'b-')
 
     plt.show()
