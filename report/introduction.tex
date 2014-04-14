@@ -13,6 +13,13 @@ The favourite motivator is of course the search for life beyond our own. While t
 
 \subsubsection{Transit Method}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/planetary_transit.pdf}
+    \caption{Example of simple model of planetary transit and the expected light curve}
+    \label{fig:transit}
+\end{figure}
+
 By observing the flux from a star over period of time, any orbiting planet that passes in front of the star will cause a slight dip in the observed flux. This change in the light curve allows one to calculate the relative sizes of the planet and the star.
 
 \paragraph{Advantages:}
@@ -32,33 +39,42 @@ By observing the flux from a star over period of time, any orbiting planet that 
 
 As well as determining properties of the planet from the transit, by examining the regularity of these transits it is possible to determine information about other planets in the system. This is know as the transit timing variation method.
 
-The period ($T$) of the planetary orbit can be figured out trivially by looking at the time between light curves. However large quantities observations need to be taken
+The period ($T$) of the planetary orbit can be figured out trivially by looking at the time between light curves. However large quantities of observations need to be taken for this.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/planetary_transit.pdf}
-    \caption{Example of simple model of planetary transit and the expected light curve}
-    \label{fig:transit}
-\end{figure}
+Unfortunately the transit method only works well for large planets, as the flux dip is related to the square of the ratio of the planet to star radii. For instance observing a transit of the Earth from outside our solar system would only produce a fractional drop in flux of the order of $10^5$. A small drop like that would easily be hidden within the error, which is typically of the order of $10^3$ to $10^2$, and similar to a flux drop that would be observed simply due to a large Sunspot.
+
+Using a simple uniform disk model (described in detail later), the planet radius can be obtained as:
+\[ \frac{\Delta F}{F} = \left( \frac{R_p}{R_*} \right)^2 \]
+\[ \Rightarrow R_p = R_* \sqrt{\frac{\Delta F}{F}} \]
 
 \subsubsection{Radial Velocity}
 
-Normally we talk about planets orbiting around a star, as this model approximates what we see very well. In actual fact however, the planet and star both orbit their common center of mass. Generally this center of mass is located very close to the center of the star so the, planet orbit model works well. However the star will move slightly, and is especially noticeable for very large planets orbiting closely, so called Hot Jupiters. As the star is moving in its own orbit, small doppler shifts can be seen in the spectrum of the star. Modern spectrometers are so accurate, that even small velocities of the order of $1\units{ms^{-1}}$ can be observed \citep{ge2002externally}.
+Normally we talk about planets orbiting around a star, as this model approximates what we see very well. In actual fact however, the planet and star both orbit their common center of mass. Generally this center of mass is located very close to the center of the star so the, planet orbit model works well. However the star will move slightly, and is especially noticeable for very large planets orbiting closely, so called Hot Jupiters. As the star is moving in its own orbit, small doppler shifts can be seen in the spectrum of the star. Modern spectrometers are so accurate, that even small velocities of the order of $1\units{ms^{-1}}$ can be observed \citep{ge2002externally}. Observing using this method is often called 'Doppler Spectroscopy'.
 
 \paragraph{Advantages:}
 \begin{itemize*}
     \item Works well for low mass stars
     \item Distance independent
     \item Works for larger inclination range than transit method
+    \item Gives orbital radius and planetary mass
 \end{itemize*}
 
 \paragraph{Disadvantages:}
 \begin{itemize*}
-    \item Works best for large planets
+    \item Depends on inclination
     \item Requires high signal to noise ratio of data
     \item Requires spectrometers rather than just CCD cameras
     \item Poor results for stars with fast rotational velocities
 \end{itemize*}
+
+The radius of orbit can be calculated as:
+\[r^3 =\frac{GM_*}{4\pi^2}P_*^2 \]
+
+Which gives the orbital velocity from Newtonian mechanics as:
+\[v_p =\sqrt{\frac{GM_*}{r}} \]
+
+The planetary mass can be calculated from the radial velocity as:
+\[ m_P = \frac{M_*v_*}{v_P} \]
 
 \subsubsection{Pulsar timing}
 

@@ -14,10 +14,6 @@
         \caption{Sample flat image generated with our equipment}
         \label{fig:flat_image}
     \end{minipage}
-\end{figure}
-
-\begin{figure}[ht]
-    \centering
     \begin{minipage}[b]{\figwidth}
         \centering
         \includegraphics[width=\textwidth]{images/raw_image.png}
@@ -57,13 +53,18 @@ The first step in performing automated photometry is to actually identify. The c
 \subsubsection{Algorithm for star detection}
 
 The algorithm I devised was designed to be as simple as possible, and perform quickly on a large fits images. While code for the algorithm can be found in the listing in the appendix, here is a simple description of the method:
+
 \begin{enumerate}
     \item Estimate the background level
     \item Find local maxima above this background, with SNR above some given threshold
-    \item With these maxima locations, perform a 2D gaussian fit around the region to find the center of the object
+    \item With these maxima locations, perform a 2D Gaussian fit around the region to find the centre of the object
 \end{enumerate}
 
-The final gaussian fit gives both the center of the star with sub pixel accuracy, and a good estimate of the radius of the star by using the FWHM of the gaussian.
+The final Gaussian fit gives both the centre of the star with sub pixel accuracy, and a good estimate of the radius of the star by using the FWHM of the Gaussian. The function used for this fit is as follows:
+
+\[ f(x,y) =A\exp{\left( \frac{(y-y_0)^2}{2\sigma_y^2} - \frac{(x-x_0)^2}{2\sigma_x^2} \right)} + C \]
+
+$C$ is added as parameter to raise the Gaussian fall off above zero to compensate for the background level in the image.
 
 \subsection{Object Tracking}
 
@@ -71,7 +72,11 @@ The optical setup and mount alignment are never perfect, so stars will drift ins
 
 Objects in the image don't just drift, there will also be some rotation due to imperfect mount alignment. Over the course of an observing session this may be as much as a few degrees. For stars towards the edge of the frame, this could be a large pixel distance on the image.
 
-Luckily, both of these operations are easy to describe mathematically, and thus easy to numerically fit for. Traditionally image transformations in computers are described as a translation, rotation, and scale. In this case, we can disregard any scale change and just concentrate on the translation and rotation transformations.
+There can also be a small adjustment from frame to frame for individual objects due to seeing conditions. While the rotation and shift operations describe a systematic change, stars may appear slightly moved from frame to frame due to, for instance distortion effects in the atmosphere.
+
+\subsubsection{Whole Image Tracking}
+
+Both of these operations are easy to describe mathematically, and thus easy to numerically fit for. Traditionally image transformations in computers are described as a translation, rotation, and scale. In this case, we can disregard any scale change and just concentrate on the translation and rotation transformations.
 
 Rotation is described by the matrix operation:
 \[
@@ -102,7 +107,7 @@ The translations is described by:
 \end{bmatrix}
 \]
 
-The total change from image to image is then described by the sum of both of these operations. A very simple tracking algorithm can then be constructed by simply using a least squares fit on the data by performing both operations, and attempting to minimise the total pixel difference when subtracting one image from the other. As stars are much brighter than the background, this function will be minimized when the stars lie on top of each other as much as possible. The changes from image to image are small enough so that it doesnt matter which order the operators are applied. For larger drifts this would not be the case as the rotation would no longer be approximately around a fixed point, and a more complex function would be required to describe the change.
+The total change from image to image is then described by the sum of both of these operations. A very simple tracking algorithm can then be constructed by simply using a least squares fit on the data by performing both operations, and attempting to minimise the total pixel difference when subtracting one image from the other. As stars are much brighter than the background, this function will be minimized when the stars lie on top of each other as much as possible. The changes from image to image are small enough so that it doesn't matter which order the operators are applied. For larger drifts this would not be the case as the rotation would no longer be approximately around a fixed point, and a more complex function would be required to describe the change.
 \[
 \begin{bmatrix}
     u \\ v
@@ -117,6 +122,30 @@ The total change from image to image is then described by the sum of both of the
 \end{bmatrix}
 \]
 
+\subsubsection{Localised Tracking}
+
+As long as the shift is small, a single star movement can be well described as a re-centering of a 2D Gaussian in a local frame around the previous location of the star. This algorithm can be described easily as:
+
+\begin{enumerate}
+    \item Slice the data centred on the previous location of the star (figure \ref{fig:untracked_star})
+    \item Re-fit the 2D Gaussian (figure \ref{fig:tracked_Star})
+    \item Ensure the new location and properties for the star are realistic
+\end{enumerate}
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}[b]{\figwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/star_untracked.pdf}
+        \caption{Sliced region around previous star location}
+        \label{fig:untracked_star}
+    \end{minipage}\quad\quad
+    \begin{minipage}[b]{\figwidth}
+        \includegraphics[width=\textwidth]{images/star_tracked.pdf}
+        \caption{Star re-centred with Gaussian}
+        \label{fig:tracked_Star}
+    \end{minipage}
+\end{figure}
 \subsection{Photometry}
 
 To perform photometry, we simply want to calculate the flux of the star. With both a location and estimated radius for the star, this is trivial to obtain. The total flux is simply the sum of the flux inside an aperture with radius of the star, minus the background within the aperture.
@@ -131,6 +160,48 @@ To perform photometry, we simply want to calculate the flux of the star. With bo
 Firstly, an airmass correction can be performed. Most visible transits happen across a range of altitude, and many of the stronger ones are low in the sky. An example of a star with a transit can be seen in figure \ref{fig:airmass}. The airmass can be corrected for simply by normalising for an airmass of one at the zenith, so the airmass is given simply by $\sec \theta$, where $\theta$ is the altitude of the object.
 
 While this gives us flux values for each star, they are not calibrated and so a further calibration step must be performed. This is done by using calibration stars in the same frame, that should be chosen not to be variable.
-\[ \text{Calibrated} = \frac{\text{Measured Flux}}{\text{Calibration Star Flux}} \]
+\[ F_i = \frac{F_m - F_{sky}}{F_c - F_{sky}} \]
+Where $F_i$ is the final flux value for calibration star $i$, $F_m$ is the measured flux, $F_{sky}$ is the background and $F_C$ is the flux of the calibration star.
 
-This can be performed with many calibration stars to compensate for both not always knowing if a star is a variable, and  differences in seeing across the field of view.
+This can be performed with many calibration stars to compensate for both not always knowing if a star is a variable, and  differences in seeing across the field of view. These calibrated values are then normalised and an average value is taken as the final flux. ($N$ is the number of calibration stars used).
+\[ F = \frac{1}{N}\sum{F} \]
+
+\subsection{Error Correction}
+
+At each stage of the pipeline errors need to be carefully accounted for. For a better optical setup with more favourable seeing conditions, the error will be largely dominated by Poisson noise. However with the poor seeing conditions in Cardiff there is also a factor to be considered due to varying seeing across even small portions of the frame. This turned out to of the same order as the Poisson the noise.
+
+\subsubsection{Poisson Noise}
+
+Poisson noise is a factor in any kind of sampling experiment, and astrophotography is no different. Essentially it describes the random fluctuations in a measurement due to probability. If $n$ events occur on average, the poisson distribution describes the spread of events that would be measured.
+\[ dn = \sqrt{n} \]
+
+Each pixel on the CCD is essentially a bucket that catches photons. The values of the pixel data can therefore be related to number of photons collected. A CCD has an analogue to digital converter so that when pixel information is read, a number is obtained that is directly proportional to the photon count. In the fits image header, a field 'EGAIN' is used to describe how the number relates to photon count.
+\[ n_\gamma = \text{EGAIN} \times \text{Pixel Value} \]
+
+An individual star, while a point source does not simply appear as a single pixel. It appears as a smear across an area of the CCD. While the Poission noise describes the error on each pixel, they need to be added in quadrature to give a total error for the flux measured. ($dv$ is the
+\[ dF = \sqrt{\sum{dn_\gamma^2}} \]
+
+\subsubsection{Seeing Noise}
+
+As well as the Poisson noise, I also take into account an error component due to seeing conditions. For each calibration star used, I fit a quadratic function to the calibration star flux as this approximately describes the varying seeing conditions well. Then I take the variance of the differences between the quadratic and the measured flux values across the series of images. This gives an overall error factor that approximately describes the systematic error due to local seeing conditions across the image. A plot for one of the calibration curves can be seen in figure \ref{fig:calibration_error}. Note that from better observing sites this error would be much less than the Poisson noise and could be ignored.
+\[ ds = \text{Variance}(F_c - \text{Best Fit})\]
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/calibration_error_fit.pdf}
+    \caption{Variance in calibration stars}
+    \label{fig:calibration_error}
+\end{figure}
+
+\subsubsection{Combining Errors}
+
+When ever needed, the formula for the propogation of uncertainty is used, as all variables are independent:
+\[ dx^2 = \sum_i \left( \diff{f}{x_i}\right)^2 dx_i^2  \]
+
+As the final flux is a mean of the set of calibrated fluxes, I calculate the Poisson error as:
+\[ dF = \frac{1}{N}\sqrt{\sum{dF_i^2}} \]
+
+The total error then for a star flux, including all calibrations and combining the Poisson noise and the seeing error is:
+\[  dF_* = \sqrt{ds^2 + dF^2} \]
+
+\subsection{Model Fitting}
