@@ -48,7 +48,7 @@ So in summary, after creating a bias and a flat image, and image taken by the CC
     \label{fig:finder_image}
 \end{figure}
 
-The first step in performing automated photometry is to actually identify. The common method to find objects in an astronomical image is to use the sextractor tool \citep{bertin1996sextractor}. However as this software is a bit of a black box, I chose to also experiment with writing my own tool to find stars. The pipeline is written to support using both the sextractor tool and my own algorithm interchangeably. Configuration information provided to the sextractor tool can be found in the appendices. An image showing the accuracy of the star finder can be seen in figure \ref{fig:finder_image}.
+The first step in performing automated photometry is to actually identify the stars in the image. The common method to find objects in an astronomical image is to use the sextractor tool \citep{bertin1996sextractor}. However as this software is a bit of a black box, I chose to also experiment with writing my own tool to find stars. The pipeline is written to support using both the sextractor tool and my own algorithm interchangeably. Configuration information provided to the sextractor tool can be found in the appendices. An image showing the accuracy of the star finder can be seen in figure \ref{fig:finder_image}.
 
 \subsubsection{Algorithm for star detection}
 
@@ -148,7 +148,7 @@ As long as the shift is small, a single star movement can be well described as a
 \end{figure}
 \subsection{Photometry}
 
-To perform photometry, we simply want to calculate the flux of the star. With both a location and estimated radius for the star, this is trivial to obtain. The total flux is simply the sum of the flux inside an aperture with radius of the star, minus the background within the aperture.
+To perform photometry, we simply want to calculate the flux of the star. With both a location in the image, and an estimated pixel radius for the star, as obtained by the Gaussian fit, this is trivial to obtain. The total flux is simply the sum of the flux inside an aperture with radius of the star, minus the background within the aperture.
 
 \begin{figure}[ht]
     \centering
@@ -178,7 +178,7 @@ Poisson noise is a factor in any kind of sampling experiment, and astrophotograp
 Each pixel on the CCD is essentially a bucket that catches photons. The values of the pixel data can therefore be related to number of photons collected. A CCD has an analogue to digital converter so that when pixel information is read, a number is obtained that is directly proportional to the photon count. In the fits image header, a field 'EGAIN' is used to describe how the number relates to photon count.
 \[ n_\gamma = \text{EGAIN} \times \text{Pixel Value} \]
 
-An individual star, while a point source does not simply appear as a single pixel. It appears as a smear across an area of the CCD. While the Poission noise describes the error on each pixel, they need to be added in quadrature to give a total error for the flux measured. ($dv$ is the
+An individual star, while a point source does not simply appear as a single pixel. It appears as a smear across an area of the CCD. While the Poission noise describes the error on each pixel, they need to be added in quadrature to give a total error for the flux measured.
 \[ dF = \sqrt{\sum{dn_\gamma^2}} \]
 
 \subsubsection{Seeing Noise}
@@ -205,3 +205,21 @@ The total error then for a star flux, including all calibrations and combining t
 \[  dF_* = \sqrt{ds^2 + dF^2} \]
 
 \subsection{Model Fitting}
+
+While fitting a uniform disk model gives a nice analytical solution to determining the planetary radius from $\Delta F$, the limb darkening model fits real world data much more accurately. In order to determine the planetary radius in this case it is necessary to perform a numerical fit to the data. To do this I take the model from \cite{mandel2002analytic} that was previously used in my simulation and perform a least squares fit, using the Levenberg-Marquardt algorithm \citep{more1978levenberg}. The residual $R$ used in the fit is a minimisation of the differences between the data and the model, with a component weighting for the error.
+
+\[ R = \sqrt{ \frac{ \left( F_{model} - F_* \right)^2 }{dF_*} } \]
+
+The physical parameter that determines this model is the planetary radius $R_p$. However There are also parameters to determine the  beginning and length of the transition as the data isn't necessarily centred around the mid-point of the transition, and a scale parameter as the initial guess of the base flux might not be completely accurate. To obtain the guess of the star's normal flux I take the mean of the top 50th percentile of the raw data. In my testing this has proven to be accurate to within 5 parts in 100 in most cases so the scaling parameter is usually very close to 1.
+
+Using the results of the numerical fitting it is then possible to calculate the confidence interval and determine the error on the parameters. To do this I use an F-test comparing against a null model, where a parameter is just fixed to a specific value. The parameter is then changed until the difference between $X_0^2$ and $X_F^2$ can't be explained by the loss of a degree of freedom withing a certain confidence level (for the Cardiff data I use $\sigma=2$):
+
+\[ f(P_{fix},N-P) =\left( \frac{X_F^2}{X_0^2} - 1 \right)\frac{N-P}{P_{fix}} \]
+
+Where $N$ is the number of data points in the fit, $P$ is the value in the null model and $P_{fix}$ is the number of fixed parameters. Determining the error on the parameter in this way gives us the advantage that we can determine value and errors at different confidence levels.
+
+\subsection{Determining Planetary Characteristics}
+
+The model used determines the planetary radius as a fraction of the star radius. In order then to determine physical values more data is required. Firstly, the radius of the star needs to be known. This is much easier to measure for main sequence stars, so in general any planet that can be observed using the transit method has a host star with very well known characteristics.
+
+To determine anything more about the planet, namely its mass and orbital characteristics the transmit method is usually combined with data from the radial velocity method as described earlier.

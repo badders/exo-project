@@ -1,7 +1,32 @@
 %!TEX root = project.tex
+\subsection{Hat P 20}
+
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\textwidth]{images/chris_curve.pdf}
     \caption{Transit Curve for Hat P 20 B}
     \label{fig:hatp20_curve}
 \end{figure}
+
+Applying the automated pipeline to the data from 2011 provided by Chris Fuller, I generated a light curve for the star Hat P 20 (figure \ref{fig:hatp20_curve}). The best fit of the \citep{mandel2002analytic} model gives a planetary radius of (for $\sigma=2$):
+
+\[ R_p = (0.135 \pm 0.021) R_* \]
+
+To get physical properties I then took the star data from \citep{bakos2011hat}, where the star radius was determined to be:
+
+\[ R_* = (0.694\pm0.21) R_\odot \]
+
+Combining these results gives a planetary radius of:
+
+\[ R_p = (0.91\pm0.14) R_J \]
+
+It has been determined by \citep{bakos2011hat} that the planetary radius is:
+
+\[ R_p = (0.867\pm0.033) R_J \]
+
+My measured result agrees very well with this value, although only measured to an accuracy of $\sigma=2$, considering the differences between the telescopes used and seeing conditions between the two experiments, this is a surprisingly good result.
+
+\subsection{Conclusions}
+
+I have shown that it is possible to discover and identify exo-planets even from locations considered poor for observational astronomy, and using relatively inexpensive equipment. I have developed an automated software pipeline for performing data reduction and aperture photometry on a set of fits images, and used these data to determine the properties of an existing known exoplanet to a reasonable accuracy.
+I have met all of the goals laid out in the initial project proposal, excluding taking my own observations due to the unfavourable weather.

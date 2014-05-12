@@ -2,14 +2,8 @@
 
 \subsection{Observations}
 
-Unfortunately due to poor weather I have so far been unable to collect any new data of my own, and have so far just worked with data from previous attempts at this project. Hopefully I will be able to collect data of my own for known transits to demonstrate that the methods I have described work. After this I would like to collect data attempting to find new transit candidates.
+Unfortunately due to poor weather I have so far been unable to collect any new data of my own, and have so far just worked with data from previous attempts at this project. Hopefully I would be able to collect data of my own for known transits to demonstrate that the methods I have described work. After this I would like to collect data attempting to find new transit candidates.
 
 \subsection{Fully automated photometry}
 
-While much of the software pipeline is automated, there can be further improvements here.
-\begin{enumerate}
-    \item Automatically attempt to fit transit curve to all stars in image
-    \item Analyse the curves to find transit candidates
-\end{enumerate}
-
-Ideally I would like to be able to capture images for an entire night with a wide field of view, and then see if there are any as of yet unknown planetary transits that can be further investigated.
+While much of the software pipeline is automated, there can be further improvements here. I would like to be able to check all stars in an image automatically, and report back likely candidates for planetary transits that could be further investigated by hand if needed. While the photometry is already performed, extra code and strategies would need to be developed in order to filter out poor calibration stars (usually variable stars), however most of the software needed to do this automation has been developed in this project and could be upgraded easily if an algorithm was created to filter calibration stars.

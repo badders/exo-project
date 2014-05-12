@@ -47,10 +47,13 @@ class ModelFit:
 
     def residual(self, params):
         mdata = self.model(params)
-        return np.sqrt(((mdata - self.flux) / self.err)**2)
+        return np.sqrt(((mdata - self.flux)**2 / self.err))
 
 
 def fit_quadlimb(time, flux, flux_err, stretch=0.5):
+    """
+    Perform a fit of time/flux data to the quadratic limb darkening model
+    """
     params = Parameters()
     params.add('r_p', value=0.12, min=0)
     params.add('r_s', value=1.4, min=0)
@@ -64,4 +67,5 @@ def fit_quadlimb(time, flux, flux_err, stretch=0.5):
     ci = conf_interval(result, sigmas=[0.95])
     rp_err = ci['r_p'][1][1] - ci['r_p'][0][1]
 
+    print(params['r_p'], rp_err)
     return f, params['r_p'].value, abs(rp_err)

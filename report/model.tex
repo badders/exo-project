@@ -14,23 +14,23 @@
         \end{minipage}
 \end{figure}
 
-A very simple model can be made by assuming that the transiting planet is a solid sphere with some radius $r_p$, that blocks all of the radiation from the star. Also, assume that the star itself, with radius $r_*$, emits radiation uniformly from all points, and that it too is a solid sphere.
+A very simple model can be made by assuming that the transiting planet is a solid sphere with some radius $R_p$, that blocks all of the radiation from the star. Also, assume that the star itself, with radius $R_*$, emits radiation uniformly from all points, and that it too is a solid sphere.
 
 In this model, there are three positions in the transit that need to be accounted for. Firstly, that the planet disk does not overlap the star, and no radiation is blocked. Secondly, that the planet's disk is fully contained within the disk of the star, and so the emitted radiation is blocked by the complete planetary disk. And thirdly that the disks overlap partially, and some factor less than during a complete overlap is blocked.
 
 The amount of overlap of two circles of different size can be determined as follows:
 \begin{align}
     A &= \kappa_1 + \kappa_2 - \kappa_3 \\
-    \kappa_1 &= r_p^2\cos^{-1}\left(\frac{d^2 + r_p^2 - r_*^2}{2dr_p}\right)\\
-    \kappa_2 &= r_*^2\cos^{-1}\left(\frac{d^2 + r_*^2 - r_p^2}{2dr_*}\right)\\
+    \kappa_1 &= R_p^2\cos^{-1}\left(\frac{d^2 + R_p^2 - r_*^2}{2dR_p}\right)\\
+    \kappa_2 &= R_*^2\cos^{-1}\left(\frac{d^2 + R_*^2 - R_p^2}{2dR_*}\right)\\
     \begin{split}
-        \kappa_3 &= \frac{1}{2}\sqrt{(-d + r_p + r_*)(d + r_p - r_*)(d - r_p + r_*)(d + r_p + r_*)}
+        \kappa_3 &= \frac{1}{2}\sqrt{(-d + R_p + R_*)(d + R_p - R_*)(d - R_p + R_*)(d + R_p + R_*)}
     \end{split}
 \end{align}
-While I arrived at this model independently, it is mathematically identical to the uniform disk model presented in \cite{mandel2002analytic}, although presented in a different form. An example transit using this model can be seen in figure \ref{fig:uniform_disk_model}. In each model simulation I use a theoretical hot Jupiter, with parameters as shown in table \ref{tab:model}.
+While I arrived at this model independently, it is mathematically identical to the uniform disk model presented in \cite{mandel2002analytic}, although presented in a different form. An example transit using this model can be seen in figure \ref{fig:uniform_disk_model}. In each model simulation I use a theoretical hot Jupiter orbiting our Sun, with parameters as shown in table \ref{tab:model}.
 \begin{table}[ht]
 \centering
-\begin{tabular}{|l|r|}
+\begin{tabular}{|l|c|}
 \hline
 Parameter & Value \\
 \hline

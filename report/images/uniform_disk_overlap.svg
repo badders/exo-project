@@ -13,7 +13,7 @@
    height="406.24234"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9943 custom"
+   inkscape:version="0.48.2 r9819"
    sodipodi:docname="uniform_disk_overlap.svg">
   <defs
      id="defs4">
@@ -111,7 +111,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.1973675"
      inkscape:cx="184.19576"
-     inkscape:cy="210.99527"
+     inkscape:cy="207.61024"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -293,7 +293,7 @@
          x="189.58257"
          y="365.85617"><tspan
            style="font-size:28px"
-           id="tspan6392">r=r</tspan><tspan
+           id="tspan6392">r=R</tspan><tspan
            style="font-size:16px;baseline-shift:sub"
            id="tspan6384">*</tspan></tspan></text>
     <text
@@ -306,7 +306,7 @@
          sodipodi:role="line"
          id="tspan6388"
          x="364.13214"
-         y="441.02106">r=r<tspan
+         y="441.02106">r=R<tspan
    style="font-size:16px;baseline-shift:sub"
    id="tspan6390">p</tspan></tspan></text>
   </g>
